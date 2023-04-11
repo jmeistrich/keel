@@ -3,6 +3,7 @@ package program
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -13,15 +14,18 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/radovskyb/watcher"
+	"github.com/rs/cors"
 	"github.com/teamkeel/keel/cmd/cliconfig"
 	"github.com/teamkeel/keel/cmd/database"
 	"github.com/teamkeel/keel/config"
 	"github.com/teamkeel/keel/db"
+	"github.com/teamkeel/keel/exporter"
 	"github.com/teamkeel/keel/migrations"
 	"github.com/teamkeel/keel/node"
 	"github.com/teamkeel/keel/proto"
 	"github.com/teamkeel/keel/schema"
 	"github.com/teamkeel/keel/schema/reader"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 )
 
 type LoadSchemaMsg struct {
@@ -329,6 +333,100 @@ func StartRuntimeServer(port string, ch chan tea.Msg) tea.Cmd {
 			}),
 		}
 		_ = runtimeServer.ListenAndServe()
+		return nil
+	}
+}
+
+type RpcRequestMsg struct {
+	w    http.ResponseWriter
+	r    *http.Request
+	done chan bool
+}
+
+func StartRpcServer(port string, ch chan tea.Msg) tea.Cmd {
+	return func() tea.Msg {
+		rpcServer := http.Server{
+			Addr: fmt.Sprintf(":%s", port),
+			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				done := make(chan bool, 1)
+				ch <- RpcRequestMsg{
+					w:    w,
+					r:    r,
+					done: done,
+				}
+				<-done
+			}),
+		}
+		_ = rpcServer.ListenAndServe()
+		return nil
+	}
+}
+
+func StartTraceServer(port string) tea.Cmd {
+	return func() tea.Msg {
+		cors := cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{
+				http.MethodHead,
+				http.MethodGet,
+				http.MethodPost,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodDelete,
+			},
+			AllowedHeaders:   []string{"*"},
+			AllowCredentials: true,
+		})
+
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/traces":
+				w.Header().Set("Content-Type", "application/json")
+				traceData := exporter.AllTraces()
+
+				res := []tracetest.SpanStub{}
+
+				for _, v := range traceData {
+					for _, span := range v {
+						if !span.Parent.HasSpanID() {
+							res = append(res, span)
+						}
+					}
+				}
+
+				b, err := json.Marshal(res)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				w.Write(b)
+			case "/trace":
+				id := r.URL.Query().Get("id")
+				if id == "" {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				w.Header().Set("Content-Type", "application/json")
+				trace := exporter.GetTrace(id)
+				b, err := json.Marshal(trace)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				w.Write(b)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		})
+
+		traceServer := http.Server{
+			Addr:    fmt.Sprintf(":%s", port),
+			Handler: cors.Handler(handler),
+		}
+
+		_ = traceServer.ListenAndServe()
 		return nil
 	}
 }

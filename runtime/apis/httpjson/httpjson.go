@@ -33,6 +33,10 @@ func NewHandler(p *proto.Schema, api *proto.Api) common.ApiHandlerFunc {
 		ctx, span := tracer.Start(r.Context(), "HttpJson")
 		defer span.End()
 
+		span.SetAttributes(
+			attribute.String("path", r.URL.Path),
+		)
+
 		// Special case for exposing an OpenAPI response
 		if strings.HasSuffix(r.URL.Path, "/openapi.json") {
 			sch := openapi.Generate(ctx, p, api)

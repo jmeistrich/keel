@@ -19,6 +19,9 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -39,6 +42,18 @@ func GetVersion() string {
 	return Version
 }
 
+func SetExporter(exporter sdktrace.SpanExporter) error {
+
+	provider := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+	)
+
+	otel.SetTracerProvider(provider)
+	otel.SetTextMapPropagator(propagation.TraceContext{})
+
+	return nil
+}
+
 func NewHttpHandler(currSchema *proto.Schema) http.Handler {
 	var handler common.ApiHandlerFunc
 	if currSchema != nil {
@@ -47,7 +62,7 @@ func NewHttpHandler(currSchema *proto.Schema) http.Handler {
 
 	httpHandler := func(w http.ResponseWriter, r *http.Request) {
 		ctx, span := tracer.Start(r.Context(), "Runtime")
-		span.End()
+		defer span.End()
 
 		span.SetAttributes(
 			attribute.String("runtime_version", Version),
@@ -191,7 +206,7 @@ func logLevel() log.Level {
 
 func handleAuthorization(ctx context.Context, schema *proto.Schema, headers http.Header, w http.ResponseWriter) (*runtimectx.Identity, error) {
 	ctx, span := tracer.Start(ctx, "Authorization")
-	span.End()
+	defer span.End()
 
 	header := headers.Get(authorizationHeaderName)
 	if header == "" {

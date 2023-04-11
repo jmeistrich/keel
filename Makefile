@@ -56,3 +56,9 @@ setup-conventional-commits:
 goreleaser:
 	rm -rf dist
 	goreleaser release --snapshot
+
+rpcApi:
+	protoc \
+			--go_opt=Mschema.proto=github.com/teamkeel/keel/proto \
+			--twirp_out=Mschema.proto=github.com/teamkeel/keel/proto:. \
+			--go_out=./ rpc/rpc.proto

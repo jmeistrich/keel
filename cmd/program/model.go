@@ -1,6 +1,7 @@
 package program
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"os"
@@ -9,18 +10,23 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/playground"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/rs/cors"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"github.com/teamkeel/keel/cmd/database"
 	"github.com/teamkeel/keel/config"
 	"github.com/teamkeel/keel/db"
+	"github.com/teamkeel/keel/exporter"
 	"github.com/teamkeel/keel/functions"
 	"github.com/teamkeel/keel/migrations"
 	"github.com/teamkeel/keel/node"
 	"github.com/teamkeel/keel/proto"
+	"github.com/teamkeel/keel/rpc/rpc"
+	rpcApiServer "github.com/teamkeel/keel/rpc/server"
 	"github.com/teamkeel/keel/runtime"
 	"github.com/teamkeel/keel/runtime/runtimectx"
 	"github.com/teamkeel/keel/schema/reader"
+	"github.com/twitchtv/twirp"
 )
 
 const (
@@ -72,7 +78,9 @@ type Model struct {
 	Mode int
 
 	// Port to run the runtime server on in ModeRun
-	Port string
+	Port      string
+	RpcPort   string
+	TracePort string
 
 	// If true then the database will be reset. Only
 	// applies to ModeRun.
@@ -96,6 +104,8 @@ type Model struct {
 	MigrationChanges []*migrations.DatabaseChange
 	FunctionsServer  *node.DevelopmentServer
 	RuntimeHandler   http.Handler
+	RpcHandler       http.Handler
+	RpcServer        *rpcApiServer.Server
 	RuntimeRequests  []*RuntimeRequest
 	FunctionsLog     []*FunctionLog
 	TestOutput       string
@@ -105,6 +115,8 @@ type Model struct {
 	// Channels for communication between long-running
 	// commands and the Bubbletea program
 	runtimeRequestsCh chan tea.Msg
+	rpcRequestsCh     chan tea.Msg
+	traceRequestsCh   chan tea.Msg
 	functionsLogCh    chan tea.Msg
 	watcherCh         chan tea.Msg
 }
@@ -124,9 +136,13 @@ var _ tea.Model = &Model{}
 
 func (m *Model) Init() tea.Cmd {
 	m.runtimeRequestsCh = make(chan tea.Msg, 1)
+	m.rpcRequestsCh = make(chan tea.Msg, 1)
 	m.functionsLogCh = make(chan tea.Msg, 1)
 	m.watcherCh = make(chan tea.Msg, 1)
 	m.Environment = lo.Ternary(m.Mode == ModeTest, "test", "development")
+	m.RpcServer = &rpcApiServer.Server{}
+	m.RpcPort = "8001"
+	m.TracePort = "8002"
 
 	switch m.Mode {
 	case ModeValidate:
@@ -182,7 +198,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		cmds := []tea.Cmd{
 			StartRuntimeServer(m.Port, m.runtimeRequestsCh),
+			StartRpcServer(m.RpcPort, m.rpcRequestsCh),
+			StartTraceServer(m.TracePort),
 			NextMsgCommand(m.runtimeRequestsCh),
+			NextMsgCommand(m.rpcRequestsCh),
 			LoadSchema(m.ProjectDir, m.Environment),
 		}
 
@@ -237,7 +256,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Schema.Apis = append(m.Schema.Apis, testApi)
 		}
 
+		// not really the place for this
+		exporter, _ := exporter.New(exporter.WithPrettyPrint())
+		_ = runtime.SetExporter(exporter)
+
 		m.RuntimeHandler = runtime.NewHttpHandler(m.Schema)
+		m.RpcHandler = rpc.NewAPIServer(m.RpcServer, twirp.WithServerPathPrefix("/rpc"))
 		m.Status = StatusRunMigrations
 		return m, RunMigrations(m.Schema, m.DatabaseConnInfo)
 
@@ -329,7 +353,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// log runtime requests for the run cmd
 		if m.Mode == ModeRun && m.Err == nil && m.Status >= StatusLoadSchema {
-			cmds = append(cmds, tea.Println(renderRequestLog(request)))
+			if !strings.HasSuffix(request.Path, "/openapi.json") {
+				cmds = append(cmds, tea.Println(renderRequestLog(request)))
+			}
 		}
 
 		if strings.HasSuffix(r.URL.Path, "/graphiql") {
@@ -347,6 +373,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		ctx := msg.r.Context()
+
 		database, _ := db.New(ctx, m.DatabaseConnInfo)
 		ctx = runtimectx.WithDatabase(ctx, database)
 		ctx = runtimectx.WithSecrets(ctx, m.Secrets)
@@ -369,6 +396,39 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			os.Unsetenv(k)
 		}
 
+		msg.done <- true
+		return m, tea.Batch(cmds...)
+	case RpcRequestMsg:
+		ctx := msg.r.Context()
+		ctx = context.WithValue(ctx, "schema", m.Schema)
+		r := msg.r.WithContext(ctx)
+		w := msg.w
+
+		cmds := []tea.Cmd{
+			NextMsgCommand(m.rpcRequestsCh),
+		}
+
+		if m.RpcHandler == nil {
+			w.WriteHeader(500)
+			_, _ = w.Write([]byte("Cannot serve requests while there are schema errors. Please see the CLI output for more info."))
+			msg.done <- true
+			return m, NextMsgCommand(m.runtimeRequestsCh)
+		}
+
+		cors := cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{
+				http.MethodHead,
+				http.MethodGet,
+				http.MethodPost,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodDelete,
+			},
+			AllowedHeaders:   []string{"*"},
+			AllowCredentials: true,
+		})
+		cors.Handler(m.RpcHandler).ServeHTTP(msg.w, r)
 		msg.done <- true
 		return m, tea.Batch(cmds...)
 	case WatcherMsg:

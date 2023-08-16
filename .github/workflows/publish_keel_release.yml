@@ -7,6 +7,8 @@ on:
         description: "Release Version"
         required: true
         type: string
+  push:
+    branches: [BLD-601-create-production-release]
 
 jobs:
   npm_release:

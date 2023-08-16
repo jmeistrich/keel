@@ -16,6 +16,8 @@ on:
         description: "URL to release notes for version"
         required: true
         type: string
+  push:
+    branches: [BLD-601-create-production-release]
 
 jobs:
   create_branch:

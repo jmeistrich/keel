@@ -1,0 +1,82 @@
+name: Prepare Keel Release
+
+on:
+  workflow_call:
+    inputs:
+      pre_release_tag:
+        description: "Tag to create release branch at. If not supplied, release branch will be created at HEAD commit"
+        required: false
+        default: "HEAD"
+        type: string
+      version:
+        description: "Release Version"
+        required: true
+        type: string
+      release_notes_url:
+        description: "URL to release notes for version"
+        required: true
+        type: string
+
+jobs:
+  create_branch:
+    name: Create release branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: teamkeel/keel
+          ref: ${{ inputs.pre_release_tag }}
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Create new release branch
+        uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: "refs/heads/release/v${{ inputs.version }}"
+          sha: ${{ github.sha }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          repository: teamkeel/keel
+          ref: release/v${{ inputs.version }}
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+  npm_release:
+    uses: ./.github/workflows/npm_release.yml
+    with:
+      version: ${{ inputs.version }}
+      publish_tag: rc-next
+      dry_run: false
+    secrets: inherit
+
+  github_release:
+    name: Make Github Release
+    runs-on: ubuntu-latest
+    needs: [npm_release]
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ inputs.version }}
+          name: ${{ inputs.release_notes_url }}
+          draft: true
+          makeLatest: true
+          prerelease: false
+          allowUpdates: true
+          updateOnlyUnreleased: true
+
+      - name: Fire Release Event
+        id: release_event
+        uses: peter-evans/repository-dispatch@v2.1.1
+        with:
+          token: ${{ secrets.PAT }}
+          repository: teamkeel/backend
+          event-type: new-release
+          client-payload: '{"version": "${{ inputs.version }}", "releaseNotes": "${{ inputs.release_notes_url }}"}'

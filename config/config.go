@@ -17,9 +17,23 @@ type Config struct{}
 
 // ProjectConfig is the configuration for a keel project
 type ProjectConfig struct {
+	Project     ProjectDetails    `yaml:"project"`
+	Deploy      DeployConfig      `yaml:"deploy"`
 	Environment EnvironmentConfig `yaml:"environment"`
 	Secrets     []Input           `yaml:"secrets"`
 	DisableAuth bool              `yaml:"disableKeelAuth"`
+}
+
+type ProjectDetails struct {
+	Name string `yaml:"name"`
+}
+
+type DeployConfig struct {
+	Database DatabaseConfig `yaml:"database"`
+}
+
+type DatabaseConfig struct {
+	Provider string `yaml:"provider"`
 }
 
 func (p *ProjectConfig) GetEnvVars(env string) map[string]string {

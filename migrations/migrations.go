@@ -134,6 +134,8 @@ func New(ctx context.Context, schema *proto.Schema, database db.Database) (*Migr
 	//    trigger a corresponding migration also.
 	//
 	pushAuditModel(schema)
+	// Make sure the audit model is removed from the schema returned inside the New Migrations
+	// object.
 	defer popAuditModel(schema)
 
 	modelNames := proto.ModelNames(schema)
@@ -155,20 +157,21 @@ func New(ctx context.Context, schema *proto.Schema, database db.Database) (*Migr
 				Type:  ChangeTypeAdded,
 			})
 			modelsAdded = append(modelsAdded, model)
-
-			// Add audit logs hooks to every table - excluding of course
-			// the audit table itself.
-			if model.Name != auditModelName {
-				stmt, err = createAuditHookStmt(schema, model)
-				if err != nil {
-					return nil, err
-				}
-				statements = append(statements, stmt)
-			}
 			continue
 		}
 
 		existingModels = append(existingModels, model)
+	}
+
+	// Add audit logs hooks to every table - excluding the audit table itself.
+	for _, model := range modelsAdded {
+		if model.Name != auditModelName {
+			stmt, err := createAuditHookStmt(schema, model)
+			if err != nil {
+				return nil, err
+			}
+			statements = append(statements, stmt)
+		}
 	}
 
 	// Foreign key constraints for new models (done after all tables have been created)
@@ -297,10 +300,6 @@ func New(ctx context.Context, schema *proto.Schema, database db.Database) (*Migr
 			})
 		}
 	}
-
-	// Make sure the audit model is removed from the schema returned inside the New Migrations
-	// object.
-	popAuditModel(schema)
 
 	return &Migrations{
 		database: database,

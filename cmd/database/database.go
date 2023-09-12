@@ -458,7 +458,7 @@ func createVolumeIfNotExists(dockerClient *client.Client) error {
 	}
 	_, err = dockerClient.VolumeCreate(
 		context.Background(),
-		dockerVolume.CreateOptions{Name: keelPGVolumeName})
+		dockerVolume.CreateOptions{Name: keelPGVolumeName, Labels: map[string]string{keelPGVolumeVersionTagName: postgresMajorVersion}})
 	if err != nil {
 		return nil
 	}
@@ -482,7 +482,9 @@ func findVolume(dockerClient *client.Client) (volume *dockerVolume.Volume, err e
 }
 
 const postgresImageName string = "postgres"
-const postgresTag string = "11.13"
+const postgresTag string = "15-alpine"
+const postgresMajorVersion = "15"
 const keelPostgresContainerName string = "keel-run-postgres"
 const keelPGVolumeName string = "keel-pg-volume"
+const keelPGVolumeVersionTagName string = "postgres-version"
 const keelVolumeMountPath = `/var/lib/postgresql/data`

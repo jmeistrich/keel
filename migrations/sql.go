@@ -302,7 +302,7 @@ func dropColumnStmt(modelName string, fieldName string) string {
 func createAuditHookStmt(schema *proto.Schema, model *proto.Model) (string, error) {
 	// This makes 3 sql statements similar to this:
 	//
-	// CREATE TRIGGER person_create AFTER INSERT ON person
+	// CREATE OR REPLACE TRIGGER person_create AFTER INSERT ON person
 	// REFERENCING OLD TABLE AS old_table
 	// FOR EACH STATEMENT EXECUTE PROCEDURE process_audit();
 	//
@@ -311,13 +311,13 @@ func createAuditHookStmt(schema *proto.Schema, model *proto.Model) (string, erro
 	statements := []string{}
 
 	statements = append(statements, fmt.Sprintf(
-		`CREATE TRIGGER %s_create AFTER INSERT ON %s REFERENCING NEW TABLE AS new_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
+		`CREATE OR REPLACE TRIGGER %s_create AFTER INSERT ON %s REFERENCING NEW TABLE AS new_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
 
 	statements = append(statements, fmt.Sprintf(
-		`CREATE TRIGGER %s_update AFTER UPDATE ON %s REFERENCING NEW TABLE AS new_table OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
+		`CREATE OR REPLACE TRIGGER %s_update AFTER UPDATE ON %s REFERENCING NEW TABLE AS new_table OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
 
 	statements = append(statements, fmt.Sprintf(
-		`CREATE TRIGGER %s_delete AFTER DELETE ON %s REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
+		`CREATE OR REPLACE TRIGGER %s_delete AFTER DELETE ON %s REFERENCING OLD TABLE AS old_table FOR EACH STATEMENT EXECUTE PROCEDURE process_audit(); `, modelLower, tblName))
 
 	return strings.Join(statements, "\n"), nil
 }

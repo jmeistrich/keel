@@ -20,6 +20,7 @@ import (
 	dockerVolume "github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/samber/lo"
 	"github.com/teamkeel/keel/db"
 	"github.com/teamkeel/keel/util"
@@ -160,7 +161,7 @@ func fetchPostgresImageIfNecessary(dockerClient *client.Client) error {
 
 	if postgresImage == nil {
 		fmt.Println("Pulling postgres Docker image...")
-		reader, err := dockerClient.ImagePull(context.Background(), postgresImageName+":"+postgresTag, types.ImagePullOptions{})
+		reader, err := dockerClient.ImagePull(context.Background(), postgresImageName+":"+postgresImageTag, types.ImagePullOptions{})
 		if err != nil {
 			return err
 		}
@@ -219,7 +220,7 @@ func createContainer(dockerClient *client.Client) (
 	// default of '/var/lib/postgresql/data' (rather than setting the envvar PGDATA),
 	// because that is where we have mounted the external storage volume to the container.
 	containerConfig := &container.Config{
-		Image: postgresImageName + ":" + postgresTag,
+		Image: postgresImageName + ":" + postgresImageTag,
 		Env: []string{
 			"POSTGRES_PASSWORD=postgres",
 			"POSTGRES_USER=postgres",
@@ -261,18 +262,19 @@ func startContainer(dockerClient *client.Client, containerID string) error {
 		types.ContainerStartOptions{}); err != nil {
 		return err
 	}
+
 	return nil
 }
 
 // findImage looks up the Postgres Docker Image we require in the local
-// Docker Image Resistry and returns its metadata. It it is not registered,
+// Docker Image Registry and returns its metadata. If it is not registered,
 // it signals this by returning nil metadata.
 func findImage(dockerClient *client.Client) (*types.ImageSummary, error) {
 	images, err := dockerClient.ImageList(context.Background(), types.ImageListOptions{})
 	if err != nil {
 		return nil, err
 	}
-	searchFor := strings.Join([]string{postgresImageName, postgresTag}, ":")
+	searchFor := strings.Join([]string{postgresImageName, postgresImageTag}, ":")
 	for _, image := range images {
 		tags := image.RepoTags
 		if lo.Contains(tags, searchFor) {
@@ -348,7 +350,7 @@ func newPortBindingAndVolumeMountConfig(hostPort string) *container.HostConfig {
 	}
 	pgStorageMount := mount.Mount{
 		Type:   mount.TypeVolume,
-		Source: keelPGVolumeName,
+		Source: keelPostgresVolumeName,
 		Target: keelVolumeMountPath,
 	}
 	hostConfig := &container.HostConfig{
@@ -454,11 +456,67 @@ func createVolumeIfNotExists(dockerClient *client.Client) error {
 		return err
 	}
 	if vol != nil {
-		return nil
+		if pgVolumeVersion, ok := vol.Labels[keelPostgresVolumeVersionTagName]; ok {
+			if pgVolumeVersion != keelPostgresMajorVersion {
+				return fmt.Errorf("incompatible postgres v%s data volume. v%s is required", pgVolumeVersion, keelPostgresMajorVersion)
+			}
+		} else {
+			ctx := context.Background()
+			// fmt.Println("Pulling postgres-upgrade Docker image...")
+			// reader, err := dockerClient.ImagePull(context.Background(), "tianon/postgres-upgrade:11-to-15", types.ImagePullOptions{})
+			// if err != nil {
+			// 	return err
+			// }
+			// defer awaitReadCompletion(reader)
+
+			//reader.Close()
+
+			reader, err := dockerClient.ImagePull(ctx, "tianon/postgres-upgrade:11-to-15", types.ImagePullOptions{Platform: "x86_64"})
+			if err != nil {
+				panic(err)
+			}
+
+			defer reader.Close()
+			_, _ = io.Copy(os.Stdout, reader)
+
+			resp, err := dockerClient.ContainerCreate(
+				ctx,
+				&container.Config{
+
+					Image: "tianon/postgres-upgrade:11-to-15", //https://github.com/tianon/docker-postgres-upgrade
+					Cmd: []string{
+						"-v PGDATAOLD:/var/lib/pppp",
+						"-v PGDATANEW:/var/lib/pppp15",
+						//fmt.Sprintf("%s/15", keelVolumeMountPath),
+						//"-e POSTGRES_ENV_POSTGRES_PASSWORD='foo'",
+						"--link"},
+					Volumes: map[string]struct{ "keelPostgresVolumeName": {}},
+				},
+				&container.HostConfig{},
+				nil,
+				&v1.Platform{}, //Architecture: "x86_64"},
+				"")             // keep empty, otherwis face future collisions
+
+			if err != nil {
+				return fmt.Errorf("unable to perform postgres data volume migration. please migrate or delete the volume and rerun Keel. %s", err.Error())
+			}
+
+			if err := dockerClient.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
+				return err
+			}
+
+			defer func() {
+				//_, err = dockerClient.ImageRemove(ctx, "tianon/postgres-upgrade:11-to-15", types.ImageRemoveOptions{Force: true})
+				//err = errors.Join(err, dockerClient.ContainerRemove(ctx, resp.ID, types.ContainerRemoveOptions{Force: true, RemoveVolumes: false}))
+			}()
+
+			//return fmt.Errorf("incompatible postgres data volume. v%s is required", keelPostgresMajorVersion)
+		}
+		return err
 	}
 	_, err = dockerClient.VolumeCreate(
 		context.Background(),
-		dockerVolume.CreateOptions{Name: keelPGVolumeName, Labels: map[string]string{keelPGVolumeVersionTagName: postgresMajorVersion}})
+		dockerVolume.CreateOptions{Name: keelPostgresVolumeName, Labels: map[string]string{keelPostgresVolumeVersionTagName: keelPostgresMajorVersion}})
 	if err != nil {
 		return nil
 	}
@@ -474,7 +532,7 @@ func findVolume(dockerClient *client.Client) (volume *dockerVolume.Volume, err e
 		return nil, err
 	}
 	for _, vol := range volList.Volumes {
-		if vol.Name == keelPGVolumeName {
+		if vol.Name == keelPostgresVolumeName {
 			return vol, nil
 		}
 	}
@@ -482,9 +540,9 @@ func findVolume(dockerClient *client.Client) (volume *dockerVolume.Volume, err e
 }
 
 const postgresImageName string = "postgres"
-const postgresTag string = "15-alpine"
-const postgresMajorVersion = "15"
+const postgresImageTag string = "15-alpine"
 const keelPostgresContainerName string = "keel-run-postgres"
-const keelPGVolumeName string = "keel-pg-volume"
-const keelPGVolumeVersionTagName string = "postgres-version"
+const keelPostgresVolumeName string = "keel-pg-volume"
+const keelPostgresVolumeVersionTagName string = "postgres-version"
+const keelPostgresMajorVersion = "15"
 const keelVolumeMountPath = `/var/lib/postgresql/data`

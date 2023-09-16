@@ -8,6 +8,7 @@ import (
 
 	"github.com/segmentio/ksuid"
 	"github.com/teamkeel/keel/proto"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/auth"
 	"github.com/teamkeel/keel/runtime/runtimectx"
 	"github.com/teamkeel/keel/schema/parser"
@@ -26,18 +27,18 @@ func FindIdentityByEmail(ctx context.Context, schema *proto.Schema, email string
 
 func FindIdentityByExternalId(ctx context.Context, schema *proto.Schema, externalId string, issuer string) (*auth.Identity, error) {
 	identityModel := proto.FindModel(schema.Models, parser.ImplicitIdentityModelName)
-	query := NewQuery(ctx, identityModel)
-	err := query.Where(Field("externalId"), Equals, Value(externalId))
+	query := q.NewQuery(ctx, identityModel)
+	err := query.Where(q.Field("externalId"), q.Equals, q.Value(externalId))
 	if err != nil {
 		return nil, err
 	}
 	query.And()
-	err = query.Where(Field("issuer"), Equals, Value(issuer))
+	err = query.Where(q.Field("issuer"), q.Equals, q.Value(issuer))
 	if err != nil {
 		return nil, err
 	}
 
-	query.AppendSelect(AllFields())
+	query.AppendSelect(q.AllFields())
 	result, err := query.SelectStatement().ExecuteToSingle(ctx)
 
 	if err != nil {
@@ -52,13 +53,13 @@ func FindIdentityByExternalId(ctx context.Context, schema *proto.Schema, externa
 
 func findSingle(ctx context.Context, schema *proto.Schema, field string, value string) (*auth.Identity, error) {
 	identityModel := proto.FindModel(schema.Models, parser.ImplicitIdentityModelName)
-	query := NewQuery(ctx, identityModel)
-	err := query.Where(Field(field), Equals, Value(value))
+	query := q.NewQuery(ctx, identityModel)
+	err := query.Where(q.Field(field), q.Equals, q.Value(value))
 	if err != nil {
 		return nil, err
 	}
 
-	query.AppendSelect(AllFields())
+	query.AppendSelect(q.AllFields())
 	result, err := query.SelectStatement().ExecuteToSingle(ctx)
 
 	if err != nil {
@@ -74,14 +75,14 @@ func findSingle(ctx context.Context, schema *proto.Schema, field string, value s
 func CreateIdentity(ctx context.Context, schema *proto.Schema, email string, password string) (*auth.Identity, error) {
 	identityModel := proto.FindModel(schema.Models, parser.ImplicitIdentityModelName)
 
-	query := NewQuery(ctx, identityModel)
+	query := q.NewQuery(ctx, identityModel)
 	query.AddWriteValues(map[string]any{
 		"email":    email,
 		"password": password,
 		"issuer":   keelIssuerClaim,
 	})
-	query.AppendSelect(AllFields())
-	query.AppendReturning(IdField())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.IdField())
 
 	result, err := query.InsertStatement().ExecuteToSingle(ctx)
 	if err != nil {
@@ -113,7 +114,7 @@ func CreateExternalIdentity(ctx context.Context, schema *proto.Schema, externalI
 		}
 	}
 
-	query := NewQuery(ctx, identityModel)
+	query := q.NewQuery(ctx, identityModel)
 	// even if we can't fetch the user data, create it with the core information
 	query.AddWriteValues(map[string]any{
 		"externalId": externalId,
@@ -130,8 +131,8 @@ func CreateExternalIdentity(ctx context.Context, schema *proto.Schema, externalI
 		}
 	}
 
-	query.AppendSelect(AllFields())
-	query.AppendReturning(IdField())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.IdField())
 
 	result, err := query.InsertStatement().ExecuteToSingle(ctx)
 	if err != nil {

@@ -1,11 +1,12 @@
 package actions
 
 import (
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/common"
 )
 
 func Delete(scope *Scope, input map[string]any) (*string, error) {
-	query := NewQuery(scope.Context, scope.Model)
+	query := q.NewQuery(scope.Context, scope.Model)
 
 	// Generate the SQL statement
 	statement, err := GenerateDeleteStatement(query, scope, input)
@@ -13,8 +14,8 @@ func Delete(scope *Scope, input map[string]any) (*string, error) {
 		return nil, err
 	}
 
-	query.AppendSelect(IdField())
-	query.AppendDistinctOn(IdField())
+	query.AppendSelect(q.IdField())
+	query.AppendDistinctOn(q.IdField())
 	res, err := query.SelectStatement().ExecuteToSingle(scope.Context)
 	if err != nil {
 		return nil, err
@@ -50,18 +51,18 @@ func Delete(scope *Scope, input map[string]any) (*string, error) {
 	return &id, err
 }
 
-func GenerateDeleteStatement(query *QueryBuilder, scope *Scope, input map[string]any) (*Statement, error) {
-	err := query.applyImplicitFilters(scope, input)
+func GenerateDeleteStatement(query *q.QueryBuilder, scope *Scope, input map[string]any) (*q.Statement, error) {
+	err := query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
-	err = query.applyExplicitFilters(scope, input)
+	err = query.ApplyExplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
-	query.AppendReturning(Field("id"))
+	query.AppendReturning(q.Field("id"))
 
 	return query.DeleteStatement(), nil
 }

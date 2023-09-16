@@ -8,6 +8,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/teamkeel/keel/proto"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/auth"
 	"github.com/teamkeel/keel/runtime/expressions"
 	"github.com/teamkeel/keel/schema/parser"
@@ -190,27 +191,27 @@ func resolveRolePermissionRule(ctx context.Context, schema *proto.Schema, permis
 	return authorised, nil
 }
 
-func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRule, input map[string]any) (*Statement, error) {
+func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRule, input map[string]any) (*q.Statement, error) {
 	permissions = proto.PermissionsWithExpression(permissions)
-	query := NewQuery(scope.Context, scope.Model, WithJoinType(JoinTypeLeft))
+	query := q.NewQuery(scope.Context, scope.Model)
 
 	// Implicit and explicit filters need to be included in the permissions query,
 	// otherwise we'll be testing against records which aren't part of the the result set
 	if scope.Action.Type == proto.ActionType_ACTION_TYPE_LIST {
-		err := query.applyImplicitFiltersForList(scope, input)
+		err := query.ApplyImplicitFiltersForList(scope.Context, scope.Schema, scope.Action, input)
 		if err != nil {
 			return nil, err
 		}
 		query.And()
 	} else {
-		err := query.applyImplicitFilters(scope, input)
+		err := query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 		if err != nil {
 			return nil, err
 		}
 		query.And()
 	}
 
-	err := query.applyExplicitFilters(scope, input)
+	err := query.ApplyExplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +226,7 @@ func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRu
 				return nil, err
 			}
 
-			err = query.whereByExpression(scope, expression, map[string]any{})
+			err = query.WhereByExpression(scope.Context, scope.Schema, scope.Action, expression, map[string]any{})
 			if err != nil {
 				return nil, err
 			}
@@ -236,8 +237,8 @@ func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRu
 	}
 
 	// Select distinct IDs.
-	query.AppendSelect(IdField())
-	query.AppendDistinctOn(IdField())
+	query.AppendSelect(q.IdField())
+	query.AppendDistinctOn(q.IdField())
 
 	return query.SelectStatement(), nil
 }

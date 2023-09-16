@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/teamkeel/keel/db"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/common"
 )
 
@@ -15,7 +16,7 @@ func Create(scope *Scope, input map[string]any) (res map[string]any, err error) 
 
 	err = database.Transaction(scope.Context, func(ctx context.Context) error {
 		scope := scope.WithContext(ctx)
-		query := NewQuery(scope.Context, scope.Model)
+		query := q.NewQuery(scope.Context, scope.Model)
 
 		// Generate the SQL statement
 		statement, err := GenerateCreateStatement(query, scope, input)
@@ -44,19 +45,19 @@ func Create(scope *Scope, input map[string]any) (res map[string]any, err error) 
 	return res, err
 }
 
-func GenerateCreateStatement(query *QueryBuilder, scope *Scope, input map[string]any) (*Statement, error) {
-	err := query.captureWriteValues(scope, input)
+func GenerateCreateStatement(query *q.QueryBuilder, scope *Scope, input map[string]any) (*q.Statement, error) {
+	err := query.CaptureWriteValues(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
-	err = query.captureSetValues(scope, input)
+	err = query.CaptureSetValues(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return the inserted row
-	query.AppendReturning(AllFields())
+	query.AppendReturning(q.AllFields())
 
 	return query.InsertStatement(), nil
 }

@@ -19,6 +19,7 @@ import (
 	"github.com/teamkeel/graphql"
 	"github.com/teamkeel/graphql/gqlerrors"
 	"github.com/teamkeel/keel/proto"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/actions"
 	"github.com/teamkeel/keel/runtime/auth"
 	"github.com/teamkeel/keel/runtime/common"
@@ -312,8 +313,8 @@ func (mk *graphqlSchemaBuilder) addModel(model *proto.Model) (*graphql.Object, e
 				relatedModel := proto.FindModel(mk.proto.Models, field.Type.ModelName.Value)
 
 				// Create a new query for the related model
-				query := actions.NewQuery(ctx, relatedModel)
-				query.AppendSelect(actions.AllFields())
+				query := q.NewQuery(ctx, relatedModel)
+				query.AppendSelect(q.AllFields())
 
 				foreignKeyField := proto.GetForignKeyFieldName(mk.proto.Models, field)
 
@@ -342,14 +343,14 @@ func (mk *graphqlSchemaBuilder) addModel(model *proto.Model) (*graphql.Object, e
 					return nil, nil
 				}
 
-				var leftOperand *actions.QueryOperand
+				var leftOperand *q.QueryOperand
 				if proto.IsBelongsTo(field) {
-					leftOperand = actions.IdField()
+					leftOperand = q.IdField()
 				} else {
-					leftOperand = actions.Field(foreignKeyField)
+					leftOperand = q.Field(foreignKeyField)
 				}
 
-				err = query.Where(leftOperand, actions.Equals, actions.Value(parentFieldValue))
+				err = query.Where(leftOperand, q.Equals, q.Value(parentFieldValue))
 				if err != nil {
 					return nil, err
 				}
@@ -393,8 +394,8 @@ func (mk *graphqlSchemaBuilder) addModel(model *proto.Model) (*graphql.Object, e
 					}
 
 					// Select all columns from this table and distinct on id
-					query.AppendDistinctOn(actions.IdField())
-					query.AppendSelect(actions.AllFields())
+					query.AppendDistinctOn(q.IdField())
+					query.AppendSelect(q.AllFields())
 					err = query.ApplyPaging(page)
 					if err != nil {
 						span.RecordError(err, trace.WithStackTrace(true))

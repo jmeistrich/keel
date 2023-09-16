@@ -20,6 +20,7 @@ import (
 
 	"github.com/teamkeel/keel/mail"
 	"github.com/teamkeel/keel/proto"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/auth"
 	"github.com/teamkeel/keel/runtime/common"
 
@@ -196,13 +197,13 @@ func ResetPassword(scope *Scope, input map[string]any) error {
 
 	identityModel := proto.FindModel(scope.Schema.Models, parser.ImplicitIdentityModelName)
 
-	query := NewQuery(scope.Context, identityModel)
-	err = query.Where(Field("id"), Equals, Value(identityId))
+	query := q.NewQuery(scope.Context, identityModel)
+	err = query.Where(q.Field("id"), q.Equals, q.Value(identityId))
 	if err != nil {
 		return err
 	}
 
-	query.AddWriteValue(Field("password"), string(hashedPassword))
+	query.AddWriteValue(q.Field("password"), string(hashedPassword))
 
 	affected, err := query.UpdateStatement().Execute(scope.Context)
 	if err != nil {

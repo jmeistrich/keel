@@ -1,11 +1,12 @@
 package actions
 
 import (
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/common"
 )
 
 func Update(scope *Scope, input map[string]any) (res map[string]any, err error) {
-	query := NewQuery(scope.Context, scope.Model)
+	query := q.NewQuery(scope.Context, scope.Model)
 
 	// Generate the SQL statement
 	statement, err := GenerateUpdateStatement(query, scope, input)
@@ -13,8 +14,8 @@ func Update(scope *Scope, input map[string]any) (res map[string]any, err error) 
 		return nil, err
 	}
 
-	query.AppendSelect(IdField())
-	query.AppendDistinctOn(IdField())
+	query.AppendSelect(q.IdField())
+	query.AppendDistinctOn(q.IdField())
 	rowToAuthorise, err := query.SelectStatement().ExecuteToSingle(scope.Context)
 	if err != nil {
 		return nil, err
@@ -49,18 +50,18 @@ func Update(scope *Scope, input map[string]any) (res map[string]any, err error) 
 	return res, err
 }
 
-func GenerateUpdateStatement(query *QueryBuilder, scope *Scope, input map[string]any) (*Statement, error) {
+func GenerateUpdateStatement(query *q.QueryBuilder, scope *Scope, input map[string]any) (*q.Statement, error) {
 	values, ok := input["values"].(map[string]any)
 	if !ok {
 		values = map[string]any{}
 	}
 
-	err := query.captureWriteValues(scope, values)
+	err := query.CaptureWriteValues(scope.Context, scope.Schema, scope.Action, values)
 	if err != nil {
 		return nil, err
 	}
 
-	err = query.captureSetValues(scope, values)
+	err = query.CaptureSetValues(scope.Context, scope.Schema, scope.Action, values)
 	if err != nil {
 		return nil, err
 	}
@@ -70,18 +71,18 @@ func GenerateUpdateStatement(query *QueryBuilder, scope *Scope, input map[string
 		where = map[string]any{}
 	}
 
-	err = query.applyImplicitFilters(scope, where)
+	err = query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, where)
 	if err != nil {
 		return nil, err
 	}
 
-	err = query.applyExplicitFilters(scope, where)
+	err = query.ApplyExplicitFilters(scope.Context, scope.Schema, scope.Action, where)
 	if err != nil {
 		return nil, err
 	}
 
 	// Return the updated row
-	query.AppendReturning(AllFields())
+	query.AppendReturning(q.AllFields())
 
 	return query.UpdateStatement(), nil
 }

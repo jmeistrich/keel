@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/teamkeel/keel/proto"
+	q "github.com/teamkeel/keel/query"
 	"github.com/teamkeel/keel/runtime/actions"
 	"github.com/teamkeel/keel/runtime/auth"
 	"github.com/teamkeel/keel/schema"
@@ -1880,7 +1881,7 @@ func TestQueryBuilder(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			var statement *actions.Statement
+			var statement *q.Statement
 			switch action.Type {
 			case proto.ActionType_ACTION_TYPE_GET:
 				statement, err = actions.GenerateGetStatement(query, scope, testCase.input)
@@ -1920,7 +1921,7 @@ func TestQueryBuilder(t *testing.T) {
 }
 
 // Generates a scope and query builder
-func generateQueryScope(ctx context.Context, schemaText string, actionName string) (*actions.Scope, *actions.QueryBuilder, *proto.Action, error) {
+func generateQueryScope(ctx context.Context, schemaText string, actionName string) (*actions.Scope, *q.QueryBuilder, *proto.Action, error) {
 	builder := &schema.Builder{}
 	schema, err := builder.MakeFromString(schemaText)
 	if err != nil {
@@ -1933,7 +1934,7 @@ func generateQueryScope(ctx context.Context, schemaText string, actionName strin
 	}
 
 	model := proto.FindModel(schema.Models, action.ModelName)
-	query := actions.NewQuery(context.Background(), model)
+	query := q.NewQuery(context.Background(), model)
 	scope := actions.NewScope(ctx, action, schema)
 
 	return scope, query, action, nil
@@ -1946,10 +1947,10 @@ func clean(sql string) string {
 
 func TestInsertStatement(t *testing.T) {
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(context.Background(), model)
+	query := q.NewQuery(context.Background(), model)
 	query.AddWriteValues(map[string]any{"name": "Fred"})
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.InsertStatement()
 
 	expected := `
@@ -1961,12 +1962,12 @@ func TestInsertStatement(t *testing.T) {
 
 func TestUpdateStatement(t *testing.T) {
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(context.Background(), model)
-	query.AddWriteValue(actions.Field("name"), "Fred")
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(context.Background(), model)
+	query.AddWriteValue(q.Field("name"), "Fred")
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.UpdateStatement()
 
 	expected := `
@@ -1977,11 +1978,11 @@ func TestUpdateStatement(t *testing.T) {
 
 func TestDeleteStatement(t *testing.T) {
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(context.Background(), model)
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(context.Background(), model)
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.DeleteStatement()
 
 	expected := `
@@ -1996,10 +1997,10 @@ func TestInsertStatementWithAuditing(t *testing.T) {
 	ctx = withTracing(t, ctx)
 
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(ctx, model)
+	query := q.NewQuery(ctx, model)
 	query.AddWriteValues(map[string]any{"name": "Fred"})
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.InsertStatement()
 
 	expected := `
@@ -2019,12 +2020,12 @@ func TestUpdateStatementWithAuditing(t *testing.T) {
 	ctx = withTracing(t, ctx)
 
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(ctx, model)
-	query.AddWriteValue(actions.Field("name"), "Fred")
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(ctx, model)
+	query.AddWriteValue(q.Field("name"), "Fred")
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.UpdateStatement()
 
 	expected := `
@@ -2042,11 +2043,11 @@ func TestUpdateStatementNoReturnsWithAuditing(t *testing.T) {
 	ctx = withTracing(t, ctx)
 
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(ctx, model)
-	query.AddWriteValue(actions.Field("name"), "Fred")
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(ctx, model)
+	query.AddWriteValue(q.Field("name"), "Fred")
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
+	query.AppendSelect(q.AllFields())
 	stmt := query.UpdateStatement()
 
 	expected := `
@@ -2063,11 +2064,11 @@ func TestDeleteStatementWithAuditing(t *testing.T) {
 	ctx = withTracing(t, ctx)
 
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(ctx, model)
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(ctx, model)
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
-	query.AppendReturning(actions.AllFields())
+	query.AppendSelect(q.AllFields())
+	query.AppendReturning(q.AllFields())
 	stmt := query.DeleteStatement()
 
 	expected := `
@@ -2085,10 +2086,10 @@ func TestDeleteStatementNoReturnWithAuditing(t *testing.T) {
 	ctx = withTracing(t, ctx)
 
 	model := &proto.Model{Name: "Person"}
-	query := actions.NewQuery(ctx, model)
-	err := query.Where(actions.IdField(), actions.Equals, actions.Value("1234"))
+	query := q.NewQuery(ctx, model)
+	err := query.Where(q.IdField(), q.Equals, q.Value("1234"))
 	require.NoError(t, err)
-	query.AppendSelect(actions.AllFields())
+	query.AppendSelect(q.AllFields())
 	stmt := query.DeleteStatement()
 
 	expected := `

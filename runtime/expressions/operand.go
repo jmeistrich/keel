@@ -23,16 +23,14 @@ import (
 type OperandResolver struct {
 	Context context.Context
 	Schema  *proto.Schema
-	Model   *proto.Model
 	Action  *proto.Action
 	Operand *parser.Operand
 }
 
-func NewOperandResolver(ctx context.Context, schema *proto.Schema, model *proto.Model, action *proto.Action, operand *parser.Operand) *OperandResolver {
+func NewOperandResolver(ctx context.Context, schema *proto.Schema, action *proto.Action, operand *parser.Operand) *OperandResolver {
 	return &OperandResolver{
 		Context: ctx,
 		Schema:  schema,
-		Model:   model,
 		Action:  action,
 		Operand: operand,
 	}

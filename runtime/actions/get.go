@@ -1,9 +1,12 @@
 package actions
 
-import "github.com/teamkeel/keel/runtime/common"
+import (
+	q "github.com/teamkeel/keel/query"
+	"github.com/teamkeel/keel/runtime/common"
+)
 
 func Get(scope *Scope, input map[string]any) (map[string]any, error) {
-	query := NewQuery(scope.Context, scope.Model)
+	query := q.NewQuery(scope.Context, scope.Model)
 
 	// Generate the SQL statement
 	statement, err := GenerateGetStatement(query, scope, input)
@@ -34,20 +37,20 @@ func Get(scope *Scope, input map[string]any) (map[string]any, error) {
 	return res, err
 }
 
-func GenerateGetStatement(query *QueryBuilder, scope *Scope, input map[string]any) (*Statement, error) {
-	err := query.applyImplicitFilters(scope, input)
+func GenerateGetStatement(query *q.QueryBuilder, scope *Scope, input map[string]any) (*q.Statement, error) {
+	err := query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
-	err = query.applyExplicitFilters(scope, input)
+	err = query.ApplyExplicitFilters(scope.Context, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}
 
 	// Select all columns and distinct on id
-	query.AppendSelect(AllFields())
-	query.AppendDistinctOn(IdField())
+	query.AppendSelect(q.AllFields())
+	query.AppendDistinctOn(q.IdField())
 
 	return query.SelectStatement(), nil
 }

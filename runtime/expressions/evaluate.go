@@ -41,13 +41,13 @@ func TryResolveExpressionEarly(ctx context.Context, schema *proto.Schema, model 
 
 // canResolveConditionEarly determines if a single condition can be resolved in the process without generating a row-based query against the database.
 func canResolveConditionEarly(ctx context.Context, schema *proto.Schema, model *proto.Model, action *proto.Action, condition *parser.Condition) bool {
-	lhsResolver := NewOperandResolver(ctx, schema, model, action, condition.LHS)
+	lhsResolver := NewOperandResolver(ctx, schema, action, condition.LHS)
 
 	if condition.Type() == parser.ValueCondition {
 		return !lhsResolver.IsDatabaseColumn()
 	}
 
-	rhsResolver := NewOperandResolver(ctx, schema, model, action, condition.RHS)
+	rhsResolver := NewOperandResolver(ctx, schema, action, condition.RHS)
 	referencesDatabaseColumns := lhsResolver.IsDatabaseColumn() || rhsResolver.IsDatabaseColumn()
 
 	return !(referencesDatabaseColumns)
@@ -59,7 +59,7 @@ func resolveConditionEarly(ctx context.Context, schema *proto.Schema, model *pro
 		return false, false
 	}
 
-	lhsResolver := NewOperandResolver(ctx, schema, model, action, condition.LHS)
+	lhsResolver := NewOperandResolver(ctx, schema, action, condition.LHS)
 	operandType, _ := lhsResolver.GetOperandType()
 	lhsValue, _ := lhsResolver.ResolveValue(args)
 
@@ -68,7 +68,7 @@ func resolveConditionEarly(ctx context.Context, schema *proto.Schema, model *pro
 		return true, result
 	}
 
-	rhsResolver := NewOperandResolver(ctx, schema, model, action, condition.RHS)
+	rhsResolver := NewOperandResolver(ctx, schema, action, condition.RHS)
 	rhsValue, _ := rhsResolver.ResolveValue(args)
 	result, _ := evaluate(lhsValue, rhsValue, operandType, condition.Operator)
 

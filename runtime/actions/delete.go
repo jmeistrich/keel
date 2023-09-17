@@ -52,7 +52,7 @@ func Delete(scope *Scope, input map[string]any) (*string, error) {
 }
 
 func GenerateDeleteStatement(query *q.QueryBuilder, scope *Scope, input map[string]any) (*q.Statement, error) {
-	err := query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, input)
+	query, err := q.ApplyImplicitFilters(query, scope.Schema, scope.Action, input)
 	if err != nil {
 		return nil, err
 	}

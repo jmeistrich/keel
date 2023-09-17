@@ -194,17 +194,19 @@ func resolveRolePermissionRule(ctx context.Context, schema *proto.Schema, permis
 func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRule, input map[string]any) (*q.Statement, error) {
 	permissions = proto.PermissionsWithExpression(permissions)
 	query := q.NewQuery(scope.Context, scope.Model)
+	var err error
 
 	// Implicit and explicit filters need to be included in the permissions query,
 	// otherwise we'll be testing against records which aren't part of the the result set
 	if scope.Action.Type == proto.ActionType_ACTION_TYPE_LIST {
-		err := query.ApplyImplicitFiltersForList(scope.Context, scope.Schema, scope.Action, input)
+
+		query, err = q.ApplyImplicitFiltersForList(query, scope.Schema, scope.Action, input)
 		if err != nil {
 			return nil, err
 		}
 		query.And()
 	} else {
-		err := query.ApplyImplicitFilters(scope.Context, scope.Schema, scope.Action, input)
+		query, err = q.ApplyImplicitFilters(query, scope.Schema, scope.Action, input)
 		if err != nil {
 			return nil, err
 		}

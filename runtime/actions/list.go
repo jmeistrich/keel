@@ -6,7 +6,7 @@ import (
 )
 
 func List(scope *Scope, input map[string]any) (map[string]any, error) {
-	query := q.NewQuery(scope.Context, scope.Model)
+	query := q.NewQuery(scope.Context, scope.Schema, scope.Model)
 
 	// Generate the SQL statement.
 	statement, page, err := GenerateListStatement(query, scope, input)

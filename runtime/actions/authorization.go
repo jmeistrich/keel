@@ -228,7 +228,7 @@ func GeneratePermissionStatement(scope *Scope, permissions []*proto.PermissionRu
 				return nil, err
 			}
 
-			err = query.WhereByExpression(scope.Context, scope.Schema, scope.Action, expression, map[string]any{})
+			query, err = q.WithExpressionFilter(query, scope.Action, expression, map[string]any{})
 			if err != nil {
 				return nil, err
 			}

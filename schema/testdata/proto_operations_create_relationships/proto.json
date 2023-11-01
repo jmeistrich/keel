@@ -349,32 +349,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateSaleAndItemsInput",
-      "fields": [
-        {
-          "messageName": "CreateSaleAndItemsInput",
-          "name": "date",
-          "type": {
-            "type": "TYPE_DATE",
-            "modelName": "Sale",
-            "fieldName": "date"
-          },
-          "target": [
-            "date"
-          ]
-        },
-        {
-          "messageName": "CreateSaleAndItemsInput",
-          "name": "items",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleAndItemsItemsInput",
-            "repeated": true
-          }
-        }
-      ]
-    },
-    {
       "name": "CreateSaleAndItemsItemsInput",
       "fields": [
         {
@@ -420,10 +394,10 @@
       ]
     },
     {
-      "name": "CreateSaleAndProductInput",
+      "name": "CreateSaleAndItemsInput",
       "fields": [
         {
-          "messageName": "CreateSaleAndProductInput",
+          "messageName": "CreateSaleAndItemsInput",
           "name": "date",
           "type": {
             "type": "TYPE_DATE",
@@ -435,11 +409,11 @@
           ]
         },
         {
-          "messageName": "CreateSaleAndProductInput",
+          "messageName": "CreateSaleAndItemsInput",
           "name": "items",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleAndProductItemsInput",
+            "messageName": "CreateSaleAndItemsItemsInput",
             "repeated": true
           }
         }
@@ -491,35 +465,28 @@
       ]
     },
     {
-      "name": "CreateSaleItemInput",
+      "name": "CreateSaleAndProductInput",
       "fields": [
         {
-          "messageName": "CreateSaleItemInput",
-          "name": "sale",
+          "messageName": "CreateSaleAndProductInput",
+          "name": "date",
           "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleItemSaleInput"
-          }
-        },
-        {
-          "messageName": "CreateSaleItemInput",
-          "name": "product",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleItemProductInput"
-          }
-        },
-        {
-          "messageName": "CreateSaleItemInput",
-          "name": "quantity",
-          "type": {
-            "type": "TYPE_INT",
-            "modelName": "SaleItem",
-            "fieldName": "quantity"
+            "type": "TYPE_DATE",
+            "modelName": "Sale",
+            "fieldName": "date"
           },
           "target": [
-            "quantity"
+            "date"
           ]
+        },
+        {
+          "messageName": "CreateSaleAndProductInput",
+          "name": "items",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreateSaleAndProductItemsInput",
+            "repeated": true
+          }
         }
       ]
     },
@@ -560,26 +527,26 @@
       ]
     },
     {
-      "name": "CreateSaleItemAndProductInput",
+      "name": "CreateSaleItemInput",
       "fields": [
         {
-          "messageName": "CreateSaleItemAndProductInput",
+          "messageName": "CreateSaleItemInput",
           "name": "sale",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleItemAndProductSaleInput"
+            "messageName": "CreateSaleItemSaleInput"
           }
         },
         {
-          "messageName": "CreateSaleItemAndProductInput",
+          "messageName": "CreateSaleItemInput",
           "name": "product",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "CreateSaleItemAndProductProductInput"
+            "messageName": "CreateSaleItemProductInput"
           }
         },
         {
-          "messageName": "CreateSaleItemAndProductInput",
+          "messageName": "CreateSaleItemInput",
           "name": "quantity",
           "type": {
             "type": "TYPE_INT",
@@ -624,6 +591,39 @@
           "target": [
             "product",
             "name"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CreateSaleItemAndProductInput",
+      "fields": [
+        {
+          "messageName": "CreateSaleItemAndProductInput",
+          "name": "sale",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreateSaleItemAndProductSaleInput"
+          }
+        },
+        {
+          "messageName": "CreateSaleItemAndProductInput",
+          "name": "product",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreateSaleItemAndProductProductInput"
+          }
+        },
+        {
+          "messageName": "CreateSaleItemAndProductInput",
+          "name": "quantity",
+          "type": {
+            "type": "TYPE_INT",
+            "modelName": "SaleItem",
+            "fieldName": "quantity"
+          },
+          "target": [
+            "quantity"
           ]
         }
       ]

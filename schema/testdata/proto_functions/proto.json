@@ -176,9 +176,6 @@
       "name": "Any"
     },
     {
-      "name": "OperationAWhere"
-    },
-    {
       "name": "OperationAInput",
       "fields": [
         {

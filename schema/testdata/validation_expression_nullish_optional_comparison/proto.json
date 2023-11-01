@@ -212,9 +212,6 @@
       "name": "Any"
     },
     {
-      "name": "CreatePostInput"
-    },
-    {
       "name": "EmailPasswordInput",
       "fields": [
         {

@@ -205,9 +205,6 @@
       "name": "Any"
     },
     {
-      "name": "OpAInput"
-    },
-    {
       "name": "OpBWhere",
       "fields": [
         {
@@ -279,9 +276,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "OpDWhere"
     },
     {
       "name": "OpDInput",

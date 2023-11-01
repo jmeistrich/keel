@@ -227,9 +227,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateAccountInput"
-    },
-    {
       "name": "EmailPasswordInput",
       "fields": [
         {

@@ -200,9 +200,6 @@
       "name": "Any"
     },
     {
-      "name": "ListAuthorsWhere"
-    },
-    {
       "name": "ListAuthorsInput",
       "fields": [
         {

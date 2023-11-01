@@ -443,9 +443,6 @@
       "name": "Any"
     },
     {
-      "name": "ListWithLiteralsWhere"
-    },
-    {
       "name": "ListWithLiteralsInput",
       "fields": [
         {
@@ -490,9 +487,6 @@
           "optional": true
         }
       ]
-    },
-    {
-      "name": "ListWithFieldsWhere"
     },
     {
       "name": "ListWithFieldsInput",

@@ -190,9 +190,6 @@
       "name": "Any"
     },
     {
-      "name": "ListAuthorsWhere"
-    },
-    {
       "name": "ListAuthorsOrderByFirstName",
       "fields": [
         {

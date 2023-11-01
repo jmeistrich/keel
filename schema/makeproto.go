@@ -537,7 +537,6 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			Name:   makeInputMessageName(action.Name.Value),
 			Fields: []*proto.MessageField{},
 		}
-		scm.proto.Messages = append(scm.proto.Messages, rootMessage)
 
 		for _, input := range action.With {
 			if input.Label == nil {
@@ -556,23 +555,33 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 				})
 			}
 		}
+
+		if len(rootMessage.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, rootMessage)
+		}
 	case parser.ActionTypeGet, parser.ActionTypeDelete, parser.ActionTypeRead, parser.ActionTypeWrite:
 		// Create message and add it to the proto schema
 		messageName := makeInputMessageName(action.Name.Value)
 		message := scm.makeMessageFromActionInputNodes(messageName, action.Inputs, model, action, impl)
-		scm.proto.Messages = append(scm.proto.Messages, message)
+
+		if len(message.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, message)
+		}
 	case parser.ActionTypeUpdate:
 		// Create where message and add it to the proto schema
 		whereMessageName := makeWhereMessageName(action.Name.Value)
 		whereMessage := scm.makeMessageFromActionInputNodes(whereMessageName, action.Inputs, model, action, impl)
-		scm.proto.Messages = append(scm.proto.Messages, whereMessage)
+
+		if len(whereMessage.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
+		}
 
 		// Create values message and add it to the proto schema
 		valuesMessage := &proto.Message{
 			Name:   makeValuesMessageName(action.Name.Value),
 			Fields: []*proto.MessageField{},
 		}
-		scm.proto.Messages = append(scm.proto.Messages, valuesMessage)
+
 		for _, input := range action.With {
 			if input.Label == nil {
 				// If its an implicit input, then create a nested object input structure.
@@ -591,8 +600,12 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			}
 		}
 
+		if len(valuesMessage.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, valuesMessage)
+		}
+
 		// Create root action message with "where" and "values" fields.
-		scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+		whereMessage = &proto.Message{
 			Name: makeInputMessageName(action.Name.Value),
 			Fields: []*proto.MessageField{
 				{
@@ -618,7 +631,11 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 					},
 				},
 			},
-		})
+		}
+
+		if len(whereMessage.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
+		}
 	case parser.ActionTypeList:
 		whereMessage := &proto.Message{
 			Name:   makeWhereMessageName(action.Name.Value),
@@ -640,7 +657,9 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			}
 		}
 
-		scm.proto.Messages = append(scm.proto.Messages, whereMessage)
+		if len(whereMessage.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
+		}
 
 		sortableFields, err := query.ActionSortableFieldNames(action)
 		if err != nil {

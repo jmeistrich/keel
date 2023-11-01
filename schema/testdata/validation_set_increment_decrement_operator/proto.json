@@ -1,17 +1,17 @@
 {
   "models": [
     {
-      "name": "Foo",
+      "name": "Post",
       "fields": [
         {
-          "modelName": "Foo",
-          "name": "f1",
+          "modelName": "Post",
+          "name": "views",
           "type": {
-            "type": "TYPE_BOOL"
+            "type": "TYPE_INT"
           }
         },
         {
-          "modelName": "Foo",
+          "modelName": "Post",
           "name": "id",
           "type": {
             "type": "TYPE_ID"
@@ -22,7 +22,7 @@
           }
         },
         {
-          "modelName": "Foo",
+          "modelName": "Post",
           "name": "createdAt",
           "type": {
             "type": "TYPE_DATETIME"
@@ -32,7 +32,7 @@
           }
         },
         {
-          "modelName": "Foo",
+          "modelName": "Post",
           "name": "updatedAt",
           "type": {
             "type": "TYPE_DATETIME"
@@ -44,30 +44,16 @@
       ],
       "actions": [
         {
-          "modelName": "Foo",
-          "name": "opA",
-          "type": "ACTION_TYPE_LIST",
+          "modelName": "Post",
+          "name": "boostViews",
+          "type": "ACTION_TYPE_UPDATE",
           "implementation": "ACTION_IMPLEMENTATION_AUTO",
-          "permissions": [
+          "setExpressions": [
             {
-              "modelName": "Foo",
-              "actionName": "opA",
-              "roleNames": [
-                "Admin"
-              ],
-              "expression": {
-                "source": "foo.f1 == true"
-              }
-            },
-            {
-              "modelName": "Foo",
-              "actionName": "opA",
-              "roleNames": [
-                "Restricted"
-              ]
+              "source": "post.views += 1"
             }
           ],
-          "inputMessageName": "OpAInput"
+          "inputMessageName": "BoostViewsInput"
         }
       ]
     },
@@ -184,29 +170,15 @@
       ]
     }
   ],
-  "roles": [
-    {
-      "name": "Admin",
-      "domains": [
-        "myorg.com"
-      ]
-    },
-    {
-      "name": "Restricted",
-      "emails": [
-        "superuser@myorg.com"
-      ]
-    }
-  ],
   "apis": [
     {
       "name": "Api",
       "apiModels": [
         {
-          "modelName": "Foo"
+          "modelName": "Identity"
         },
         {
-          "modelName": "Identity"
+          "modelName": "Post"
         }
       ]
     }
@@ -216,46 +188,39 @@
       "name": "Any"
     },
     {
-      "name": "OpAInput",
+      "name": "BoostViewsWhere",
       "fields": [
         {
-          "messageName": "OpAInput",
+          "messageName": "BoostViewsWhere",
+          "name": "id",
+          "type": {
+            "type": "TYPE_ID",
+            "modelName": "Post",
+            "fieldName": "id"
+          },
+          "target": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BoostViewsInput",
+      "fields": [
+        {
+          "messageName": "BoostViewsInput",
           "name": "where",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "OpAWhere"
-          },
-          "optional": true
+            "messageName": "BoostViewsWhere"
+          }
         },
         {
-          "messageName": "OpAInput",
-          "name": "first",
+          "messageName": "BoostViewsInput",
+          "name": "values",
           "type": {
-            "type": "TYPE_INT"
-          },
-          "optional": true
-        },
-        {
-          "messageName": "OpAInput",
-          "name": "after",
-          "type": {
-            "type": "TYPE_STRING"
-          },
-          "optional": true
-        },
-        {
-          "messageName": "OpAInput",
-          "name": "last",
-          "type": {
-            "type": "TYPE_INT"
-          },
-          "optional": true
-        },
-        {
-          "messageName": "OpAInput",
-          "name": "before",
-          "type": {
-            "type": "TYPE_STRING"
+            "type": "TYPE_MESSAGE",
+            "messageName": "BoostViewsValues"
           },
           "optional": true
         }

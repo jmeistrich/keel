@@ -261,6 +261,24 @@
       "name": "Any"
     },
     {
+      "name": "CreatePostBAuthorInput",
+      "fields": [
+        {
+          "messageName": "CreatePostBAuthorInput",
+          "name": "id",
+          "type": {
+            "type": "TYPE_ID",
+            "modelName": "Author",
+            "fieldName": "id"
+          },
+          "target": [
+            "author",
+            "id"
+          ]
+        }
+      ]
+    },
+    {
       "name": "CreatePostBInput",
       "fields": [
         {
@@ -282,24 +300,6 @@
             "type": "TYPE_MESSAGE",
             "messageName": "CreatePostBAuthorInput"
           }
-        }
-      ]
-    },
-    {
-      "name": "CreatePostBAuthorInput",
-      "fields": [
-        {
-          "messageName": "CreatePostBAuthorInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_ID",
-            "modelName": "Author",
-            "fieldName": "id"
-          },
-          "target": [
-            "author",
-            "id"
-          ]
         }
       ]
     },

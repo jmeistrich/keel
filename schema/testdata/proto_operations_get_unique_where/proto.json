@@ -189,9 +189,6 @@
       "name": "Any"
     },
     {
-      "name": "GetAuthorInput"
-    },
-    {
       "name": "EmailPasswordInput",
       "fields": [
         {

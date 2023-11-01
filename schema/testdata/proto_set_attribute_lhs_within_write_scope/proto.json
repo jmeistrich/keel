@@ -708,20 +708,6 @@
       "name": "Any"
     },
     {
-      "name": "NestedData1Input",
-      "fields": [
-        {
-          "messageName": "NestedData1Input",
-          "name": "publisher",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "NestedData1PublisherInput"
-          },
-          "nullable": true
-        }
-      ]
-    },
-    {
       "name": "NestedData1PublisherInput",
       "fields": [
         {
@@ -796,6 +782,20 @@
       ]
     },
     {
+      "name": "NestedData1Input",
+      "fields": [
+        {
+          "messageName": "NestedData1Input",
+          "name": "publisher",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "NestedData1PublisherInput"
+          },
+          "nullable": true
+        }
+      ]
+    },
+    {
       "name": "NestedData2Input",
       "fields": [
         {
@@ -810,20 +810,6 @@
           "target": [
             "name"
           ]
-        }
-      ]
-    },
-    {
-      "name": "NestedData3Input",
-      "fields": [
-        {
-          "messageName": "NestedData3Input",
-          "name": "publisher",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "NestedData3PublisherInput"
-          },
-          "nullable": true
         }
       ]
     },
@@ -902,14 +888,14 @@
       ]
     },
     {
-      "name": "NestedData4Input",
+      "name": "NestedData3Input",
       "fields": [
         {
-          "messageName": "NestedData4Input",
+          "messageName": "NestedData3Input",
           "name": "publisher",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "NestedData4PublisherInput"
+            "messageName": "NestedData3PublisherInput"
           },
           "nullable": true
         }
@@ -990,6 +976,20 @@
       ]
     },
     {
+      "name": "NestedData4Input",
+      "fields": [
+        {
+          "messageName": "NestedData4Input",
+          "name": "publisher",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "NestedData4PublisherInput"
+          },
+          "nullable": true
+        }
+      ]
+    },
+    {
       "name": "NestedData5Input",
       "fields": [
         {
@@ -1004,20 +1004,6 @@
           "target": [
             "name"
           ]
-        }
-      ]
-    },
-    {
-      "name": "NestedData6Input",
-      "fields": [
-        {
-          "messageName": "NestedData6Input",
-          "name": "publisher",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "NestedData6PublisherInput"
-          },
-          "nullable": true
         }
       ]
     },
@@ -1054,14 +1040,14 @@
       ]
     },
     {
-      "name": "NestedData7Input",
+      "name": "NestedData6Input",
       "fields": [
         {
-          "messageName": "NestedData7Input",
+          "messageName": "NestedData6Input",
           "name": "publisher",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "NestedData7PublisherInput"
+            "messageName": "NestedData6PublisherInput"
           },
           "nullable": true
         }
@@ -1143,14 +1129,14 @@
       ]
     },
     {
-      "name": "NestedData8Input",
+      "name": "NestedData7Input",
       "fields": [
         {
-          "messageName": "NestedData8Input",
+          "messageName": "NestedData7Input",
           "name": "publisher",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "NestedData8PublisherInput"
+            "messageName": "NestedData7PublisherInput"
           },
           "nullable": true
         }
@@ -1231,10 +1217,18 @@
       ]
     },
     {
-      "name": "NestedData9Input"
-    },
-    {
-      "name": "NestedData10Input"
+      "name": "NestedData8Input",
+      "fields": [
+        {
+          "messageName": "NestedData8Input",
+          "name": "publisher",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "NestedData8PublisherInput"
+          },
+          "nullable": true
+        }
+      ]
     },
     {
       "name": "EmailPasswordInput",

@@ -723,9 +723,6 @@
       ]
     },
     {
-      "name": "GetByBarcodeInput"
-    },
-    {
       "name": "GetBySupplierSkuAndCodeInput",
       "fields": [
         {
@@ -774,9 +771,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "GetByAbcSkuInput"
     },
     {
       "name": "GetBySupplierCodeInput",

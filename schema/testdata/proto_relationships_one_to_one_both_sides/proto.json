@@ -254,19 +254,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateCompanyInput",
-      "fields": [
-        {
-          "messageName": "CreateCompanyInput",
-          "name": "profile",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateCompanyProfileInput"
-          }
-        }
-      ]
-    },
-    {
       "name": "CreateCompanyProfileInput",
       "fields": [
         {
@@ -281,6 +268,19 @@
             "profile",
             "employeeCount"
           ]
+        }
+      ]
+    },
+    {
+      "name": "CreateCompanyInput",
+      "fields": [
+        {
+          "messageName": "CreateCompanyInput",
+          "name": "profile",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreateCompanyProfileInput"
+          }
         }
       ]
     },

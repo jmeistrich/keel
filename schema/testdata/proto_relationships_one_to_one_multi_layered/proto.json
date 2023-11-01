@@ -359,31 +359,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateCompanyInput",
-      "fields": [
-        {
-          "messageName": "CreateCompanyInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "Company",
-            "fieldName": "name"
-          },
-          "target": [
-            "name"
-          ]
-        },
-        {
-          "messageName": "CreateCompanyInput",
-          "name": "companyProfile",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateCompanyCompanyProfileInput"
-          }
-        }
-      ]
-    },
-    {
       "name": "CreateCompanyCompanyProfileInput",
       "fields": [
         {
@@ -426,6 +401,31 @@
             "taxProfile",
             "taxNumber"
           ]
+        }
+      ]
+    },
+    {
+      "name": "CreateCompanyInput",
+      "fields": [
+        {
+          "messageName": "CreateCompanyInput",
+          "name": "name",
+          "type": {
+            "type": "TYPE_STRING",
+            "modelName": "Company",
+            "fieldName": "name"
+          },
+          "target": [
+            "name"
+          ]
+        },
+        {
+          "messageName": "CreateCompanyInput",
+          "name": "companyProfile",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreateCompanyCompanyProfileInput"
+          }
         }
       ]
     },

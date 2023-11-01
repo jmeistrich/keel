@@ -497,9 +497,6 @@
       ]
     },
     {
-      "name": "UpdateRecordOwnerValues"
-    },
-    {
       "name": "UpdateRecordOwnerInput",
       "fields": [
         {

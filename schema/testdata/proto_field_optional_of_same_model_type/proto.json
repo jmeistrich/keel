@@ -209,9 +209,6 @@
       "name": "Any"
     },
     {
-      "name": "CreatePersonInput"
-    },
-    {
       "name": "EmailPasswordInput",
       "fields": [
         {

@@ -270,9 +270,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateExtInput"
-    },
-    {
       "name": "UpdateExtWhere",
       "fields": [
         {
@@ -288,9 +285,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "UpdateExtValues"
     },
     {
       "name": "UpdateExtInput",

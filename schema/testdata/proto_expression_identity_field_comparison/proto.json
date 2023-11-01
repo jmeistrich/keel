@@ -354,41 +354,6 @@
       "name": "Any"
     },
     {
-      "name": "CreatePostInput",
-      "fields": [
-        {
-          "messageName": "CreatePostInput",
-          "name": "title",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "Post",
-            "fieldName": "title"
-          },
-          "target": [
-            "title"
-          ]
-        },
-        {
-          "messageName": "CreatePostInput",
-          "name": "publisher",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreatePostPublisherInput"
-          },
-          "nullable": true
-        },
-        {
-          "messageName": "CreatePostInput",
-          "name": "owner",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreatePostOwnerInput"
-          },
-          "nullable": true
-        }
-      ]
-    },
-    {
       "name": "CreatePostPublisherInput",
       "fields": [
         {
@@ -421,6 +386,41 @@
             "owner",
             "id"
           ]
+        }
+      ]
+    },
+    {
+      "name": "CreatePostInput",
+      "fields": [
+        {
+          "messageName": "CreatePostInput",
+          "name": "title",
+          "type": {
+            "type": "TYPE_STRING",
+            "modelName": "Post",
+            "fieldName": "title"
+          },
+          "target": [
+            "title"
+          ]
+        },
+        {
+          "messageName": "CreatePostInput",
+          "name": "publisher",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreatePostPublisherInput"
+          },
+          "nullable": true
+        },
+        {
+          "messageName": "CreatePostInput",
+          "name": "owner",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "CreatePostOwnerInput"
+          },
+          "nullable": true
         }
       ]
     },

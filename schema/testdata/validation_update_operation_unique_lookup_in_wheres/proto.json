@@ -211,9 +211,6 @@
       ]
     },
     {
-      "name": "UpdateMyModelValues"
-    },
-    {
       "name": "UpdateMyModelInput",
       "fields": [
         {

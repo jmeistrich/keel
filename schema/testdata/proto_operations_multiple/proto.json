@@ -183,9 +183,6 @@
       "name": "Any"
     },
     {
-      "name": "OperationAWhere"
-    },
-    {
       "name": "OperationAInput",
       "fields": [
         {
@@ -230,9 +227,6 @@
           "optional": true
         }
       ]
-    },
-    {
-      "name": "OperationBWhere"
     },
     {
       "name": "OperationBInput",

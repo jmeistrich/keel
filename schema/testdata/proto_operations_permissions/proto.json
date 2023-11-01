@@ -216,9 +216,6 @@
       "name": "Any"
     },
     {
-      "name": "OpAWhere"
-    },
-    {
       "name": "OpAInput",
       "fields": [
         {

@@ -466,6 +466,24 @@
       "name": "Any"
     },
     {
+      "name": "CreateRecordWithChildrenChildrenInput",
+      "fields": [
+        {
+          "messageName": "CreateRecordWithChildrenChildrenInput",
+          "name": "name",
+          "type": {
+            "type": "TYPE_STRING",
+            "modelName": "Record",
+            "fieldName": "name"
+          },
+          "target": [
+            "children",
+            "name"
+          ]
+        }
+      ]
+    },
+    {
       "name": "CreateRecordWithChildrenInput",
       "fields": [
         {
@@ -488,24 +506,6 @@
             "messageName": "CreateRecordWithChildrenChildrenInput",
             "repeated": true
           }
-        }
-      ]
-    },
-    {
-      "name": "CreateRecordWithChildrenChildrenInput",
-      "fields": [
-        {
-          "messageName": "CreateRecordWithChildrenChildrenInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "Record",
-            "fieldName": "name"
-          },
-          "target": [
-            "children",
-            "name"
-          ]
         }
       ]
     },

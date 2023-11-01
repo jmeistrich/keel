@@ -218,9 +218,6 @@
       ]
     },
     {
-      "name": "RemoveTitleValues"
-    },
-    {
       "name": "RemoveTitleInput",
       "fields": [
         {
@@ -241,9 +238,6 @@
           "optional": true
         }
       ]
-    },
-    {
-      "name": "ListPostsWithNoTitleWhere"
     },
     {
       "name": "ListPostsWithNoTitleInput",

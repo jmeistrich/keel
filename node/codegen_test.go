@@ -683,7 +683,29 @@ api Test {
     }
 }`
 	expected := `
-export interface CreateAccountInput {
+export interface EmailPasswordInput {
+	email: string;
+	password: string;
+}
+export interface AuthenticateInput {
+	createIfNotExists?: boolean;
+	emailPassword: EmailPasswordInput;
+}
+export interface AuthenticateResponse {
+	identityCreated: boolean;
+	token: string;
+}
+export interface RequestPasswordResetInput {
+	email: string;
+	redirectUrl: string;
+}
+export interface RequestPasswordResetResponse {
+}
+export interface ResetPasswordInput {
+	token: string;
+	password: string;
+}
+export interface ResetPasswordResponse {
 }`
 
 	runWriterTest(t, schema, expected, func(s *proto.Schema, w *codegen.Writer) {
@@ -712,7 +734,7 @@ api Test {
     }
 }`
 	expected := `
-createAccount(i: CreateAccountInput): Promise<Account>;`
+createAccount(): Promise<sdk.Account>;`
 
 	runWriterTest(t, schema, expected, func(s *proto.Schema, w *codegen.Writer) {
 		writeTestingTypes(w, s)

@@ -1475,23 +1475,27 @@ func writeTestingTypes(w *codegen.Writer, schema *proto.Schema) {
 	for _, model := range schema.Models {
 		for _, action := range model.Actions {
 			msg := proto.FindMessage(schema.Messages, action.InputMessageName)
+			if msg != nil {
+				w.Writef("%s(i", action.Name)
 
-			w.Writef("%s(i", action.Name)
+				// Check that all of the top level fields in the matching message are optional
+				// If so, then we can make it so you don't even need to specify the key
+				// example, this allows for:
+				// await actions.listActivePublishersWithActivePosts();
+				// instead of:
+				// const { results: publishers } =
+				// await actions.listActivePublishersWithActivePosts({ where: {} });
+				if lo.EveryBy(msg.Fields, func(f *proto.MessageField) bool {
+					return f.Optional
+				}) {
+					w.Write("?")
+				}
 
-			// Check that all of the top level fields in the matching message are optional
-			// If so, then we can make it so you don't even need to specify the key
-			// example, this allows for:
-			// await actions.listActivePublishersWithActivePosts();
-			// instead of:
-			// const { results: publishers } =
-			// await actions.listActivePublishersWithActivePosts({ where: {} });
-			if lo.EveryBy(msg.Fields, func(f *proto.MessageField) bool {
-				return f.Optional
-			}) {
-				w.Write("?")
+				w.Writef(`: %s): %s`, action.InputMessageName, toActionReturnType(model, action))
+			} else {
+				w.Writef(`%s(): %s`, action.Name, toActionReturnType(model, action))
 			}
 
-			w.Writef(`: %s): %s`, action.InputMessageName, toActionReturnType(model, action))
 			w.Writeln(";")
 		}
 	}

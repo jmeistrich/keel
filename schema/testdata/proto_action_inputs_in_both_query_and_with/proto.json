@@ -454,19 +454,6 @@
       ]
     },
     {
-      "name": "UpdateAccount3Values",
-      "fields": [
-        {
-          "messageName": "UpdateAccount3Values",
-          "name": "identity",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "UpdateAccount3IdentityInput"
-          }
-        }
-      ]
-    },
-    {
       "name": "UpdateAccount3IdentityInput",
       "fields": [
         {
@@ -481,6 +468,19 @@
             "identity",
             "id"
           ]
+        }
+      ]
+    },
+    {
+      "name": "UpdateAccount3Values",
+      "fields": [
+        {
+          "messageName": "UpdateAccount3Values",
+          "name": "identity",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "UpdateAccount3IdentityInput"
+          }
         }
       ]
     },
@@ -610,19 +610,6 @@
       ]
     },
     {
-      "name": "UpdateAccount5Values",
-      "fields": [
-        {
-          "messageName": "UpdateAccount5Values",
-          "name": "identity",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "UpdateAccount5IdentityInput"
-          }
-        }
-      ]
-    },
-    {
       "name": "UpdateAccount5IdentityInput",
       "fields": [
         {
@@ -638,6 +625,19 @@
             "identity",
             "email"
           ]
+        }
+      ]
+    },
+    {
+      "name": "UpdateAccount5Values",
+      "fields": [
+        {
+          "messageName": "UpdateAccount5Values",
+          "name": "identity",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "UpdateAccount5IdentityInput"
+          }
         }
       ]
     },

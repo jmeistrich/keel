@@ -466,24 +466,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateRecordWithChildrenChildrenInput",
-      "fields": [
-        {
-          "messageName": "CreateRecordWithChildrenChildrenInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "Record",
-            "fieldName": "name"
-          },
-          "target": [
-            "children",
-            "name"
-          ]
-        }
-      ]
-    },
-    {
       "name": "CreateRecordWithChildrenInput",
       "fields": [
         {
@@ -588,9 +570,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -608,9 +587,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

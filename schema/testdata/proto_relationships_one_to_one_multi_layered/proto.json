@@ -359,52 +359,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateCompanyCompanyProfileInput",
-      "fields": [
-        {
-          "messageName": "CreateCompanyCompanyProfileInput",
-          "name": "employeeCount",
-          "type": {
-            "type": "TYPE_INT",
-            "modelName": "CompanyProfile",
-            "fieldName": "employeeCount"
-          },
-          "target": [
-            "companyProfile",
-            "employeeCount"
-          ]
-        },
-        {
-          "messageName": "CreateCompanyCompanyProfileInput",
-          "name": "taxProfile",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "CreateCompanyCompanyProfileTaxProfileInput"
-          },
-          "nullable": true
-        }
-      ]
-    },
-    {
-      "name": "CreateCompanyCompanyProfileTaxProfileInput",
-      "fields": [
-        {
-          "messageName": "CreateCompanyCompanyProfileTaxProfileInput",
-          "name": "taxNumber",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "TaxProfile",
-            "fieldName": "taxNumber"
-          },
-          "target": [
-            "companyProfile",
-            "taxProfile",
-            "taxNumber"
-          ]
-        }
-      ]
-    },
-    {
       "name": "CreateCompanyInput",
       "fields": [
         {
@@ -426,23 +380,15 @@
             "type": "TYPE_MESSAGE",
             "messageName": "CreateCompanyCompanyProfileInput"
           }
-        }
-      ]
-    },
-    {
-      "name": "FindCompanyProfileCompanyInput",
-      "fields": [
+        },
         {
-          "messageName": "FindCompanyProfileCompanyInput",
-          "name": "id",
+          "messageName": "CreateCompanyInput",
+          "name": "taxProfile",
           "type": {
             "type": "TYPE_MESSAGE",
-            "messageName": "IdQueryInput"
+            "messageName": "CreateCompanyCompanyProfileTaxProfileInput"
           },
-          "target": [
-            "company",
-            "id"
-          ]
+          "nullable": true
         }
       ]
     },
@@ -533,37 +479,6 @@
             "type": "TYPE_STRING"
           },
           "optional": true
-        }
-      ]
-    },
-    {
-      "name": "FindTaxProfileCompanyProfileInput",
-      "fields": [
-        {
-          "messageName": "FindTaxProfileCompanyProfileInput",
-          "name": "company",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "FindTaxProfileCompanyProfileCompanyInput"
-          }
-        }
-      ]
-    },
-    {
-      "name": "FindTaxProfileCompanyProfileCompanyInput",
-      "fields": [
-        {
-          "messageName": "FindTaxProfileCompanyProfileCompanyInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "IdQueryInput"
-          },
-          "target": [
-            "companyProfile",
-            "company",
-            "id"
-          ]
         }
       ]
     },
@@ -704,9 +619,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -724,9 +636,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

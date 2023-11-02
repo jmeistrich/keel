@@ -354,42 +354,6 @@
       "name": "Any"
     },
     {
-      "name": "CreatePostPublisherInput",
-      "fields": [
-        {
-          "messageName": "CreatePostPublisherInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_ID",
-            "modelName": "Publisher",
-            "fieldName": "id"
-          },
-          "target": [
-            "publisher",
-            "id"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "CreatePostOwnerInput",
-      "fields": [
-        {
-          "messageName": "CreatePostOwnerInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_ID",
-            "modelName": "Author",
-            "fieldName": "id"
-          },
-          "target": [
-            "owner",
-            "id"
-          ]
-        }
-      ]
-    },
-    {
       "name": "CreatePostInput",
       "fields": [
         {
@@ -503,9 +467,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -523,9 +484,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

@@ -17,7 +17,7 @@ func (scm *Builder) makeProtoModels() *proto.Schema {
 	scm.proto = &proto.Schema{}
 
 	// makeAnyType adds a global 'Any' type to the messages registry which is useful for those who want untyped inputs and responses for arbitrary functions
-	scm.makeAnyType()
+	scm.addAnyMessage()
 
 	// Add any messages defined declaratively in the schema to the registry of message types
 	for _, ast := range scm.asts {
@@ -481,7 +481,7 @@ func (scm *Builder) makeMessageHierarchyFromImplicitInput(rootMessage *proto.Mes
 					Name:   relatedModelMessageName,
 					Fields: []*proto.MessageField{},
 				}
-				scm.proto.Messages = append(scm.proto.Messages, currMessage)
+				scm.addMessage(currMessage)
 			} else {
 				for _, m := range scm.proto.Messages {
 					if m.Name == relatedModelMessageName {
@@ -501,7 +501,7 @@ func (scm *Builder) makeMessageHierarchyFromImplicitInput(rootMessage *proto.Mes
 				}
 
 				if !lo.SomeBy(scm.proto.Messages, func(m *proto.Message) bool { return m.Name == queryMessage.Name }) {
-					scm.proto.Messages = append(scm.proto.Messages, queryMessage)
+					scm.addMessage(queryMessage)
 				}
 
 				currMessage.Fields = append(currMessage.Fields, &proto.MessageField{
@@ -556,25 +556,17 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			}
 		}
 
-		if len(rootMessage.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, rootMessage)
-		}
+		scm.addMessage(rootMessage)
 	case parser.ActionTypeGet, parser.ActionTypeDelete, parser.ActionTypeRead, parser.ActionTypeWrite:
 		// Create message and add it to the proto schema
 		messageName := makeInputMessageName(action.Name.Value)
 		message := scm.makeMessageFromActionInputNodes(messageName, action.Inputs, model, action, impl)
-
-		if len(message.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, message)
-		}
+		scm.addMessage(message)
 	case parser.ActionTypeUpdate:
 		// Create where message and add it to the proto schema
 		whereMessageName := makeWhereMessageName(action.Name.Value)
 		whereMessage := scm.makeMessageFromActionInputNodes(whereMessageName, action.Inputs, model, action, impl)
-
-		if len(whereMessage.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
-		}
+		scm.addMessage(whereMessage)
 
 		// Create values message and add it to the proto schema
 		valuesMessage := &proto.Message{
@@ -600,9 +592,7 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			}
 		}
 
-		if len(valuesMessage.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, valuesMessage)
-		}
+		scm.addMessage(valuesMessage)
 
 		// Create root action message with "where" and "values" fields.
 		whereMessage = &proto.Message{
@@ -633,9 +623,7 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			},
 		}
 
-		if len(whereMessage.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
-		}
+		scm.addMessage(whereMessage)
 	case parser.ActionTypeList:
 		whereMessage := &proto.Message{
 			Name:   makeWhereMessageName(action.Name.Value),
@@ -657,9 +645,7 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 			}
 		}
 
-		if len(whereMessage.Fields) > 0 {
-			scm.proto.Messages = append(scm.proto.Messages, whereMessage)
-		}
+		scm.addMessage(whereMessage)
 
 		sortableFields, err := query.ActionSortableFieldNames(action)
 		if err != nil {
@@ -729,11 +715,11 @@ func (scm *Builder) makeActionInputMessages(model *parser.ModelNode, action *par
 				},
 			}
 
-			scm.proto.Messages = append(scm.proto.Messages, orderByMessages...)
+			scm.addMessage(orderByMessages...)
 			inputMessage.Fields = append(inputMessage.Fields, orderByMessageField)
 		}
 
-		scm.proto.Messages = append(scm.proto.Messages, inputMessage)
+		scm.addMessage(inputMessage)
 	default:
 		panic("unhandled action type when creating input message types")
 	}
@@ -786,7 +772,7 @@ func (scm *Builder) makeAuthenticate() *proto.Action {
 		ResponseMessageName: responseMessageName,
 	}
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name: emailPasswordMessageName,
 		Fields: []*proto.MessageField{
 			{
@@ -804,7 +790,7 @@ func (scm *Builder) makeAuthenticate() *proto.Action {
 		},
 	})
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name: inputMessageName,
 		Fields: []*proto.MessageField{
 			{
@@ -822,7 +808,7 @@ func (scm *Builder) makeAuthenticate() *proto.Action {
 		},
 	})
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name: responseMessageName,
 		Fields: []*proto.MessageField{
 			{
@@ -856,7 +842,7 @@ func (scm *Builder) makeRequestPasswordReset() *proto.Action {
 		ResponseMessageName: responseMessageName,
 	}
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name: inputMessageName,
 		Fields: []*proto.MessageField{
 			{
@@ -874,7 +860,7 @@ func (scm *Builder) makeRequestPasswordReset() *proto.Action {
 		},
 	})
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name:   responseMessageName,
 		Fields: []*proto.MessageField{},
 	})
@@ -895,7 +881,7 @@ func (scm *Builder) makePasswordReset() *proto.Action {
 		ResponseMessageName: responseMessageName,
 	}
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name: inputMessageName,
 		Fields: []*proto.MessageField{
 			{
@@ -913,7 +899,7 @@ func (scm *Builder) makePasswordReset() *proto.Action {
 		},
 	})
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name:   responseMessageName,
 		Fields: []*proto.MessageField{},
 	})
@@ -957,14 +943,6 @@ func (scm *Builder) makeAPI(decl *parser.DeclarationNode) {
 	scm.proto.Apis = append(scm.proto.Apis, protoAPI)
 }
 
-func (scm *Builder) makeAnyType() {
-	any := &proto.Message{
-		Name: "Any",
-	}
-
-	scm.proto.Messages = append(scm.proto.Messages, any)
-}
-
 func (scm *Builder) makeMessage(decl *parser.DeclarationNode) {
 	parserMsg := decl.Message
 
@@ -995,7 +973,7 @@ func (scm *Builder) makeMessage(decl *parser.DeclarationNode) {
 		return field
 	})
 
-	scm.proto.Messages = append(scm.proto.Messages, &proto.Message{
+	scm.addMessage(&proto.Message{
 		Name:   parserMsg.Name.Value,
 		Fields: fields,
 	})
@@ -1041,7 +1019,7 @@ func (scm *Builder) makeJob(decl *parser.DeclarationNode) {
 
 	if len(message.Fields) > 0 {
 		job.InputMessageName = message.Name
-		scm.proto.Messages = append(scm.proto.Messages, message)
+		scm.addMessage(message)
 	}
 
 	scm.proto.Jobs = append(scm.proto.Jobs, job)
@@ -1237,7 +1215,7 @@ func (scm *Builder) makeAction(action *parser.ActionNode, modelName string) *pro
 		} else {
 			// Create an empty message if there is no input defined.
 			message := &proto.Message{Name: protoAction.InputMessageName}
-			scm.proto.Messages = append(scm.proto.Messages, message)
+			scm.addMessage(message)
 		}
 
 		protoAction.ResponseMessageName = action.Returns[0].Type.ToString()
@@ -1282,7 +1260,6 @@ func (scm *Builder) inferParserInputType(
 		for _, ident := range idents {
 
 			target = append(target, ident.Fragment)
-
 			field = query.ModelField(currModel, ident.Fragment)
 
 			m := query.Model(scm.asts, field.Type.Value)
@@ -1459,7 +1436,7 @@ func (scm *Builder) makeSubscriberInputMessages() {
 			},
 		}
 
-		scm.proto.Messages = append(scm.proto.Messages, message)
+		scm.addMessage(message)
 
 		for _, eventName := range subscriber.EventNames {
 			event := proto.FindEvent(scm.proto.Events, eventName)
@@ -1529,8 +1506,8 @@ func (scm *Builder) makeSubscriberInputMessages() {
 			})
 
 			message.Type.UnionNames = append(message.Type.UnionNames, wrapperspb.String(eventMessage.Name))
-			scm.proto.Messages = append(scm.proto.Messages, eventMessage)
-			scm.proto.Messages = append(scm.proto.Messages, eventTargetMessage)
+			scm.addMessage(eventMessage)
+			scm.addMessage(eventTargetMessage)
 		}
 	}
 }
@@ -1762,4 +1739,20 @@ func makeSubscriberMessageEventTargetName(subscriberName string, modelName strin
 
 func makeEventName(modelName string, action string) string {
 	return fmt.Sprintf("%s.%s", casing.ToSnake(modelName), action)
+}
+
+func (scm *Builder) addAnyMessage() {
+	any := &proto.Message{
+		Name: "Any",
+	}
+
+	scm.proto.Messages = append(scm.proto.Messages, any)
+}
+
+func (scm *Builder) addMessage(elems ...*proto.Message) {
+	for _, m := range elems {
+		if len(m.Fields) > 0 {
+			scm.proto.Messages = append(scm.proto.Messages, m)
+		}
+	}
 }

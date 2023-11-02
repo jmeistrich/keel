@@ -244,24 +244,6 @@
       "name": "Any"
     },
     {
-      "name": "CreateCompanyProfileInput",
-      "fields": [
-        {
-          "messageName": "CreateCompanyProfileInput",
-          "name": "employeeCount",
-          "type": {
-            "type": "TYPE_INT",
-            "modelName": "CompanyProfile",
-            "fieldName": "employeeCount"
-          },
-          "target": [
-            "profile",
-            "employeeCount"
-          ]
-        }
-      ]
-    },
-    {
       "name": "CreateCompanyInput",
       "fields": [
         {
@@ -353,9 +335,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -373,9 +352,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

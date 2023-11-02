@@ -312,9 +312,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -332,18 +329,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
-    },
-    {
-      "name": "SendWelcomeMailEvent",
-      "type": {
-        "type": "TYPE_UNION",
-        "unionNames": [
-          "SendWelcomeMailMemberCreatedEvent"
-        ]
-      }
     },
     {
       "name": "SendWelcomeMailMemberCreatedEvent",
@@ -407,18 +392,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "VerifyEmailEvent",
-      "type": {
-        "type": "TYPE_UNION",
-        "unionNames": [
-          "VerifyEmailMemberCreatedEvent",
-          "VerifyEmailMemberUpdatedEvent",
-          "VerifyEmailEmployeeCreatedEvent",
-          "VerifyEmailEmployeeUpdatedEvent"
-        ]
-      }
     },
     {
       "name": "VerifyEmailMemberCreatedEvent",
@@ -671,15 +644,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "SendGoodbyeMailEvent",
-      "type": {
-        "type": "TYPE_UNION",
-        "unionNames": [
-          "SendGoodbyeMailMemberDeletedEvent"
-        ]
-      }
     },
     {
       "name": "SendGoodbyeMailMemberDeletedEvent",

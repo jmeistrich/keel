@@ -325,37 +325,6 @@
       "name": "Any"
     },
     {
-      "name": "ListBooksByPublisherNameAuthorInput",
-      "fields": [
-        {
-          "messageName": "ListBooksByPublisherNameAuthorInput",
-          "name": "publisher",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "ListBooksByPublisherNameAuthorPublisherInput"
-          }
-        }
-      ]
-    },
-    {
-      "name": "ListBooksByPublisherNameAuthorPublisherInput",
-      "fields": [
-        {
-          "messageName": "ListBooksByPublisherNameAuthorPublisherInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "target": [
-            "author",
-            "publisher",
-            "name"
-          ]
-        }
-      ]
-    },
-    {
       "name": "StringQueryInput",
       "fields": [
         {
@@ -548,9 +517,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -568,9 +534,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

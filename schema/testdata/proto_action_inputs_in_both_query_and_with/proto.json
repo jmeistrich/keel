@@ -454,24 +454,6 @@
       ]
     },
     {
-      "name": "UpdateAccount3IdentityInput",
-      "fields": [
-        {
-          "messageName": "UpdateAccount3IdentityInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_ID",
-            "modelName": "Identity",
-            "fieldName": "id"
-          },
-          "target": [
-            "identity",
-            "id"
-          ]
-        }
-      ]
-    },
-    {
       "name": "UpdateAccount3Values",
       "fields": [
         {
@@ -610,25 +592,6 @@
       ]
     },
     {
-      "name": "UpdateAccount5IdentityInput",
-      "fields": [
-        {
-          "messageName": "UpdateAccount5IdentityInput",
-          "name": "email",
-          "type": {
-            "type": "TYPE_STRING",
-            "modelName": "Identity",
-            "fieldName": "email"
-          },
-          "nullable": true,
-          "target": [
-            "identity",
-            "email"
-          ]
-        }
-      ]
-    },
-    {
       "name": "UpdateAccount5Values",
       "fields": [
         {
@@ -741,9 +704,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -761,9 +721,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

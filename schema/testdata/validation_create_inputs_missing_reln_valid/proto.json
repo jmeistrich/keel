@@ -261,24 +261,6 @@
       "name": "Any"
     },
     {
-      "name": "CreatePostBAuthorInput",
-      "fields": [
-        {
-          "messageName": "CreatePostBAuthorInput",
-          "name": "id",
-          "type": {
-            "type": "TYPE_ID",
-            "modelName": "Author",
-            "fieldName": "id"
-          },
-          "target": [
-            "author",
-            "id"
-          ]
-        }
-      ]
-    },
-    {
       "name": "CreatePostBInput",
       "fields": [
         {
@@ -406,9 +388,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -426,9 +405,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

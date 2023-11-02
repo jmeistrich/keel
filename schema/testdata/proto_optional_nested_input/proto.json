@@ -293,35 +293,6 @@
       "name": "Any"
     },
     {
-      "name": "ListByCompanyCompanyInput",
-      "fields": [
-        {
-          "messageName": "ListByCompanyCompanyInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "target": [
-            "company",
-            "name"
-          ]
-        },
-        {
-          "messageName": "ListByCompanyCompanyInput",
-          "name": "tradingAs",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "target": [
-            "company",
-            "tradingAs"
-          ]
-        }
-      ]
-    },
-    {
       "name": "StringQueryInput",
       "fields": [
         {
@@ -387,6 +358,18 @@
             "type": "TYPE_MESSAGE",
             "messageName": "ListByCompanyCompanyInput"
           }
+        },
+        {
+          "messageName": "ListByCompanyWhere",
+          "name": "tradingAs",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "StringQueryInput"
+          },
+          "target": [
+            "company",
+            "tradingAs"
+          ]
         }
       ]
     },
@@ -436,35 +419,6 @@
       ]
     },
     {
-      "name": "ListByPreviousCompanyPreviousCompanyInput",
-      "fields": [
-        {
-          "messageName": "ListByPreviousCompanyPreviousCompanyInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "target": [
-            "previousCompany",
-            "name"
-          ]
-        },
-        {
-          "messageName": "ListByPreviousCompanyPreviousCompanyInput",
-          "name": "tradingAs",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "target": [
-            "previousCompany",
-            "tradingAs"
-          ]
-        }
-      ]
-    },
-    {
       "name": "ListByPreviousCompanyWhere",
       "fields": [
         {
@@ -474,6 +428,18 @@
             "type": "TYPE_MESSAGE",
             "messageName": "ListByPreviousCompanyPreviousCompanyInput"
           }
+        },
+        {
+          "messageName": "ListByPreviousCompanyWhere",
+          "name": "tradingAs",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "StringQueryInput"
+          },
+          "target": [
+            "previousCompany",
+            "tradingAs"
+          ]
         }
       ]
     },
@@ -523,37 +489,6 @@
       ]
     },
     {
-      "name": "ListByCompanyOptionalInputsCompanyInput",
-      "fields": [
-        {
-          "messageName": "ListByCompanyOptionalInputsCompanyInput",
-          "name": "name",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "optional": true,
-          "target": [
-            "company",
-            "name"
-          ]
-        },
-        {
-          "messageName": "ListByCompanyOptionalInputsCompanyInput",
-          "name": "tradingAs",
-          "type": {
-            "type": "TYPE_MESSAGE",
-            "messageName": "StringQueryInput"
-          },
-          "optional": true,
-          "target": [
-            "company",
-            "tradingAs"
-          ]
-        }
-      ]
-    },
-    {
       "name": "ListByCompanyOptionalInputsWhere",
       "fields": [
         {
@@ -564,6 +499,19 @@
             "messageName": "ListByCompanyOptionalInputsCompanyInput"
           },
           "optional": true
+        },
+        {
+          "messageName": "ListByCompanyOptionalInputsWhere",
+          "name": "tradingAs",
+          "type": {
+            "type": "TYPE_MESSAGE",
+            "messageName": "StringQueryInput"
+          },
+          "optional": true,
+          "target": [
+            "company",
+            "tradingAs"
+          ]
         }
       ]
     },
@@ -692,9 +640,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -712,9 +657,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

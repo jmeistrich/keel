@@ -201,9 +201,6 @@
       "name": "Any"
     },
     {
-      "name": "In"
-    },
-    {
       "name": "Out",
       "fields": [
         {
@@ -214,12 +211,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "NoInputInput"
-    },
-    {
-      "name": "NoInputWriteInput"
     },
     {
       "name": "EmailPasswordInput",
@@ -300,9 +291,6 @@
       ]
     },
     {
-      "name": "RequestPasswordResetResponse"
-    },
-    {
       "name": "ResetPasswordInput",
       "fields": [
         {
@@ -320,9 +308,6 @@
           }
         }
       ]
-    },
-    {
-      "name": "ResetPasswordResponse"
     }
   ]
 }

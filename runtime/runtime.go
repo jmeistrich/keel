@@ -2,11 +2,14 @@ package runtime
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 
+	"github.com/dchest/uniuri"
 	"github.com/iancoleman/strcase"
 	log "github.com/sirupsen/logrus"
 	"github.com/teamkeel/keel/events"
@@ -21,6 +24,8 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 var tracer = otel.Tracer("github.com/teamkeel/keel/runtime")
@@ -42,14 +47,26 @@ func NewHttpHandler(currSchema *proto.Schema) http.Handler {
 		handler = NewHandler(currSchema)
 	}
 
-	httpHandler := func(w http.ResponseWriter, r *http.Request) {
+	authSetup()
 
+	httpHandler := func(w http.ResponseWriter, r *http.Request) {
 		ctx, span := tracer.Start(r.Context(), "Runtime")
 		defer span.End()
 
 		span.SetAttributes(
 			attribute.String("runtime_version", Version),
 		)
+
+		if r.URL.Path == "/" {
+			indexHandler(w, r)
+			return
+		} else if r.URL.Path == "/login" {
+			loginHandler(w, r)
+			return
+		} else if r.URL.Path == "/callback" {
+			callbackHandler(w, r)
+			return
+		}
 
 		w.Header().Add("Content-Type", "application/json")
 
@@ -89,6 +106,53 @@ func NewHttpHandler(currSchema *proto.Schema) http.Handler {
 	}
 
 	return http.HandlerFunc(httpHandler)
+}
+
+var googleOauthConfig = &oauth2.Config{
+	RedirectURL:  "http://localhost:8000/callback",
+	ClientID:     "247884616520-ft5a4aerlpth1p10sao3rb7f92padugf.apps.googleusercontent.com",
+	ClientSecret: "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",
+	Scopes: []string{
+		"https://www.googleapis.com/auth/userinfo.profile",
+		"https://www.googleapis.com/auth/userinfo.email"},
+	Endpoint: google.Endpoint,
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "<a href='/login'>Log in with Google</a>")
+
+}
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	oauthStateString := uniuri.New()
+	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+func callbackHandler(w http.ResponseWriter, r *http.Request) {
+	code := r.FormValue("code")
+	token, _ := googleOauthConfig.Exchange(oauth2.NoContext, code)
+	fmt.Fprintf(w, token.AccessToken)
+
+	response, _ := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+	defer response.Body.Close()
+	contents, _ := ioutil.ReadAll(response.Body)
+	var user *GoogleUser
+	_ = json.Unmarshal(contents, &user)
+
+	fmt.Fprintf(w, "Email: %s\nName: %s\nImage link: %s\n", user.Email, user.Name, user.Picture)
+
+}
+
+type GoogleUser struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Link          string `json:"link"`
+	Picture       string `json:"picture"`
+	Gender        string `json:"gender"`
+	Locale        string `json:"locale"`
 }
 
 func NewHandler(s *proto.Schema) common.ApiHandlerFunc {

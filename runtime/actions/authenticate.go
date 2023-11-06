@@ -41,8 +41,9 @@ var (
 )
 
 const (
-	DefaultBearerTokenExpiry time.Duration = time.Hour * 24
-	ResetTokenExpiry         time.Duration = time.Minute * 15
+	DefaultBearerTokenExpiry  time.Duration = time.Hour * 24 // TODO: Reduce this!
+	DefaultRefreshTokenExpiry time.Duration = time.Hour * 24
+	ResetTokenExpiry          time.Duration = time.Minute * 15
 )
 
 const (
@@ -227,6 +228,11 @@ func GenerateBearerToken(ctx context.Context, identityId string) (string, error)
 	return generateToken(ctx, identityId, []string{}, expiry)
 }
 
+func GenerateRefreshToken(ctx context.Context, identityId string) (string, error) {
+	expiry := DefaultRefreshTokenExpiry
+	return generateToken(ctx, identityId, []string{}, expiry)
+}
+
 func GenerateResetToken(ctx context.Context, identityId string) (string, error) {
 	return generateToken(ctx, identityId, []string{resetPasswordAudClaim}, ResetTokenExpiry)
 }
@@ -262,6 +268,11 @@ func generateToken(ctx context.Context, sub string, aud []string, expiresIn time
 
 // Verifies the bearer token and returns the JWT subject and issuer.
 func ValidateBearerToken(ctx context.Context, tokenString string) (string, string, error) {
+	return validateToken(ctx, tokenString, "")
+}
+
+// Verifies the refresh token and returns the JWT subject and issuer.
+func ValidateRefreshToken(ctx context.Context, tokenString string) (string, string, error) {
 	return validateToken(ctx, tokenString, "")
 }
 

@@ -108,6 +108,11 @@ func renderRun(m *Model) string {
 			b.WriteString("\n")
 			b.WriteString(api.Name)
 			b.WriteString(colors.White(" endpoints:").String())
+
+			b.WriteString("\n")
+			b.WriteString(" - ")
+			b.WriteString(colors.Blue(fmt.Sprintf("http://localhost:%s/%s/%s", m.Port, "auth", "providers")).Highlight().String())
+			b.WriteString(colors.White(fmt.Sprintf(" (%s)", "OIDC Providers")).String())
 			endpoints := [][]string{
 				{"graphiql", "GraphiQL Playground"},
 				{"graphql", "GraphQL"},
